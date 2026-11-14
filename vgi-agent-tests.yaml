@@ -3,14 +3,20 @@
 # See https://github.com/Query-farm/vgi-lint-check (VGI920).
 tasks:
   - name: formal_greeting
-    reference_sql: SELECT starter.main.greet('Grace', 'formal') AS greeting
+    reference_sql: SELECT trajectory.examples.greet('Grace', 'formal') AS greeting
   - name: sum_of_squares
-    reference_sql: SELECT sum(squared) AS total FROM starter.main.sequence_table(10)
+    reference_sql: SELECT sum(squared) AS total FROM trajectory.examples.sequence_table(10)
   - name: stepped_sequence
-    reference_sql: SELECT n FROM starter.main.sequence_table(4, step := 5) ORDER BY n
+    reference_sql: SELECT n FROM trajectory.examples.sequence_table(4, step := 5) ORDER BY n
   # Reads the public demo API (https://vgi-starter-api.query-farm.services/v1).
   - name: items_per_category
     check_sql: >-
       SELECT count(*) = 3 AND sum(items) = 25
       FROM (SELECT category, count(*) AS items
-            FROM starter.main.fetch_items('https://vgi-starter-api.query-farm.services/v1') GROUP BY category)
+            FROM trajectory.examples.fetch_items('https://vgi-starter-api.query-farm.services/v1') GROUP BY category)
+
+  - name: gis_demo_input
+    reference_sql: "SELECT entity_id, count(*) FROM trajectory.main.demo_input GROUP BY entity_id ORDER BY entity_id"
+
+  - name: gis_episodes
+    reference_sql: "SELECT entity_id, duration_s, fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) WHERE episode_type='visit' ORDER BY entity_id"

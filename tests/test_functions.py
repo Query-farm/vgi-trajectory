@@ -9,9 +9,9 @@ import pytest
 from vgi.arguments import Arguments
 from vgi.client import Client
 
-from starter_worker.greet import _greet
+from trajectory_worker.greet import _greet
 
-SCHEMA = ["main"]
+SCHEMA = ["examples"]
 
 
 def test_greet_casual_and_formal() -> None:

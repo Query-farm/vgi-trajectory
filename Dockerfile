@@ -4,9 +4,13 @@
 #   docker run -i IMAGE stdio             -> stdio worker, for DuckDB on the same host
 FROM python:3.13-slim
 
+# Runtime libraries required by the scientific manylinux wheels.
+RUN apt-get update && apt-get install -y --no-install-recommends libexpat1 libgomp1 libstdc++6 \
+    && rm -rf /var/lib/apt/lists/*
+
 ARG VERSION=0.0.0
 ARG GIT_COMMIT=unknown
-LABEL org.opencontainers.image.title="vgi-starter-worker" \
+LABEL org.opencontainers.image.title="vgi-trajectory-worker" \
       org.opencontainers.image.description="A VGI worker for DuckDB" \
       org.opencontainers.image.source="https://github.com/Query-farm/vgi-starter-python" \
       org.opencontainers.image.version="${VERSION}" \
@@ -16,13 +20,16 @@ LABEL org.opencontainers.image.title="vgi-starter-worker" \
 ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1 PORT=8000
 WORKDIR /app
 
-COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /usr/local/bin/uv
 COPY pyproject.toml uv.lock README.md LICENSE ./
 COPY src ./src
-RUN uv pip install --system --no-cache . && rm /usr/local/bin/uv
+RUN uv sync --locked --no-dev --no-editable && rm /usr/local/bin/uv
+ENV PATH="/app/.venv/bin:$PATH" NUMBA_CACHE_DIR=/home/worker/.cache/numba \
+    XDG_STATE_HOME=/var/lib/vgi OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 
 # Run as an unprivileged user.
-RUN useradd --create-home --uid 10001 worker
+RUN useradd --create-home --uid 10001 worker \
+    && mkdir -p /var/lib/vgi && chown worker:worker /var/lib/vgi
 USER worker
 
 COPY --chmod=0755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh

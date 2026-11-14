@@ -9,3 +9,6 @@ dist/
 build/
 *.egg-info/
 .DS_Store
+
+# Local execution and publication evidence (contains machine-specific paths)
+validation/

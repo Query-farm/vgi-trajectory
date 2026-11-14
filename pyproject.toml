@@ -1,19 +1,22 @@
 [project]
-name = "vgi-starter-worker"
+name = "vgi-trajectory-worker"
 version = "0.1.0"
-description = "A VGI worker for DuckDB, generated from the Query.Farm VGI starter template."
+description = "Python GIS trajectory analysis exposed as VGI SQL functions."
 readme = "README.md"
-license = "MIT-0"
+license = "0BSD"
 license-files = ["LICENSE"]
 requires-python = ">=3.13"
 dependencies = [
+    "numpy>=2.2,<3",
+    "shapely>=2.1,<3",
+    "pyproj>=3.7,<4",
     # [http] adds the HTTP transport (`--http`) used by Docker deploys.
     # SDK bumps go through the template (minor bumps can raise the protocol).
     "vgi-python[http]>=0.51.1,<0.52",
 ]
 
 [project.scripts]
-vgi-starter-worker = "starter_worker.worker:main"
+vgi-trajectory-worker = "trajectory_worker.worker:main"
 
 [dependency-groups]
 dev = [
@@ -31,7 +34,7 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/starter_worker"]
+packages = ["src/trajectory_worker"]
 
 [tool.ruff]
 line-length = 120
@@ -49,7 +52,7 @@ ignore = ["D203", "D213", "RUF012"]
 [tool.mypy]
 strict = true
 python_version = "3.13"
-files = ["src", "tests", "examples"]
+files = ["src", "tests", "examples", "scripts/run_demo.py", "scripts/verify_package.py", "scripts/verify_container.py"]
 
 [[tool.mypy.overrides]]
 module = ["vgi.*", "vgi_rpc.*"]
@@ -65,3 +68,7 @@ skip-checking-short-docstrings = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[[tool.mypy.overrides]]
+module = ["rasterio.*", "shapely.*", "pyproj.*", "laspy.*", "scipy.*", "pyflwdir.*"]
+ignore_missing_imports = true
