@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "catalogs": {
+    "released": {
+      "path": "coverage/catalog-released.json",
+      "sha256": "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T22:29:19.912297+00:00",
+        "catalog_sha256": "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b",
+        "notes": "Complete actual six function rows plus one table group to five named (schema,name) surfaces, including examples schema. Two greet overloads count once; demo_input catalog table and callable alias count once. Release tag equals current reviewed immutable source. Same inventory evidence supports both snapshots; notebooks run the release tag. Optional authentication remains isolated, not exercised."
+      }
+    },
+    "current": {
+      "path": "coverage/catalog-current.json",
+      "sha256": "86f89e4d81ad066821cd37cdbccfb04ee6fba0ebbd267b68a059cc890c67ad25",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T22:29:19.912297+00:00",
+        "catalog_sha256": "86f89e4d81ad066821cd37cdbccfb04ee6fba0ebbd267b68a059cc890c67ad25",
+        "notes": "Complete actual six function rows plus one table group to five named (schema,name) surfaces, including examples schema. Two greet overloads count once; demo_input catalog table and callable alias count once. Release tag equals current reviewed immutable source. Same inventory evidence supports both snapshots; notebooks run the release tag. Optional authentication remains isolated, not exercised."
+      }
+    }
+  },
+  "notebooks": [
+    {
+      "path": "01_visits_between_fixes.ipynb",
+      "sha256": "1d30e8ec41caab93903b68821709ac9345dbd28c946737fe22b7c33f78339538",
+      "execution": {
+        "path": "coverage/run-01.json",
+        "sha256": "d7142917647334df1b7c178c6a068ce331b4e8bcef82bfd1a9500808c6e1759a"
+      }
+    },
+    {
+      "path": "02_page_size_is_not_roster_completeness.ipynb",
+      "sha256": "0ba31cc65af2aa8caf9d96905c185e9aa8470fea545cadacf62741b918ea9dcb",
+      "execution": {
+        "path": "coverage/run-02.json",
+        "sha256": "f0d2ecc98dc90614f5bc3ae70ccc9695c9327c2a80624de4062a5ca2df8fa60c"
+      }
+    }
+  ],
+  "examples": [
+    {
+      "object": {
+        "schema": "main",
+        "name": "demo_input"
+      },
+      "notebook": "01_visits_between_fixes.ipynb",
+      "sql": [
+        {
+          "cell": "source-query",
+          "reference": "trajectory.main.demo_input"
+        }
+      ],
+      "narrative_cells": [
+        "question",
+        "source-story",
+        "checks-story"
+      ],
+      "result_cells": [
+        "observations-table",
+        "coverage-finding",
+        "map-chart"
+      ],
+      "interpretation_cells": [
+        "coverage-finding",
+        "selected-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T22:29:19.912297+00:00",
+        "notebook_sha256": "1d30e8ec41caab93903b68821709ac9345dbd28c946737fe22b7c33f78339538",
+        "catalog_sha256": [
+          "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b",
+          "86f89e4d81ad066821cd37cdbccfb04ee6fba0ebbd267b68a059cc890c67ad25"
+        ],
+        "purpose": "Keep actual synthetic GPS observations distinct from inferred dwell and reconstruct only within the stated source span.",
+        "finding": "Four fixes form two tracks. Crossing has zero sampled fixes inside over120s; stopped has two inside over600s. Spatial membership uses the byte-verified bundled projected fence and ST_Covers; observed population stays fixed under the gap experiment."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "episodes"
+      },
+      "notebook": "01_visits_between_fixes.ipynb",
+      "sql": [
+        {
+          "cell": "episodes-query",
+          "reference": "trajectory.main.episodes"
+        }
+      ],
+      "narrative_cells": [
+        "model-story",
+        "timeline-story",
+        "checks-story",
+        "experiment-story"
+      ],
+      "result_cells": [
+        "episodes-finding",
+        "timeline-chart",
+        "checks-finding",
+        "experiment-finding",
+        "experiment-chart"
+      ],
+      "interpretation_cells": [
+        "episodes-finding",
+        "totals-finding",
+        "experiment-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T22:29:19.912297+00:00",
+        "notebook_sha256": "1d30e8ec41caab93903b68821709ac9345dbd28c946737fe22b7c33f78339538",
+        "catalog_sha256": [
+          "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b",
+          "86f89e4d81ad066821cd37cdbccfb04ee6fba0ebbd267b68a059cc890c67ad25"
+        ],
+        "purpose": "Test between-fix visit inference and the amount of unknown movement under a stricter interpolation limit.",
+        "finding": "Default900s yields crossing60s visit with no inside fixes and two30s trips; stopped600s visit is censored at both endpoints. Limit60 yields720entity-seconds of long_gap and NULL distance. SQL independently checks timestamp duration, single-fence partition and Spatial WKB length. Model consistency does not validate an observed route."
+      }
+    },
+    {
+      "object": {
+        "schema": "examples",
+        "name": "fetch_items"
+      },
+      "notebook": "02_page_size_is_not_roster_completeness.ipynb",
+      "sql": [
+        {
+          "cell": "materialize-query",
+          "reference": "trajectory.examples.fetch_items"
+        }
+      ],
+      "narrative_cells": [
+        "source-story",
+        "reconcile-story",
+        "checks-story",
+        "experiment-story"
+      ],
+      "result_cells": [
+        "materialize-query",
+        "pages-frame",
+        "summary-finding",
+        "roster-chart",
+        "checks-finding"
+      ],
+      "interpretation_cells": [
+        "summary-finding",
+        "experiment-story"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T22:29:19.912297+00:00",
+        "notebook_sha256": "0ba31cc65af2aa8caf9d96905c185e9aa8470fea545cadacf62741b918ea9dcb",
+        "catalog_sha256": [
+          "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b",
+          "86f89e4d81ad066821cd37cdbccfb04ee6fba0ebbd267b68a059cc890c67ad25"
+        ],
+        "purpose": "Distinguish complete API pagination from coverage of an independent expected roster.",
+        "finding": "The unchanged released function materializes eight explicitly synthetic loopback records once. Page size3\u21925 changes requests3\u21922 while source fingerprint remains fixed. Exact request audit verifies page progression, returned rows, terminal null and absence of auth. The full source still lacks expectedID6; no real API completeness or auth behavior is claimed."
+      }
+    },
+    {
+      "object": {
+        "schema": "examples",
+        "name": "sequence_table"
+      },
+      "notebook": "02_page_size_is_not_roster_completeness.ipynb",
+      "sql": [
+        {
+          "cell": "materialize-query",
+          "reference": "trajectory.examples.sequence_table"
+        }
+      ],
+      "narrative_cells": [
+        "source-story",
+        "reconcile-story"
+      ],
+      "result_cells": [
+        "reconcile-query",
+        "outcomes-frame",
+        "summary-finding",
+        "checks-finding"
+      ],
+      "interpretation_cells": [
+        "summary-finding",
+        "experiment-story"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T22:29:19.912297+00:00",
+        "notebook_sha256": "0ba31cc65af2aa8caf9d96905c185e9aa8470fea545cadacf62741b918ea9dcb",
+        "catalog_sha256": [
+          "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b",
+          "86f89e4d81ad066821cd37cdbccfb04ee6fba0ebbd267b68a059cc890c67ad25"
+        ],
+        "purpose": "Construct an explicitly authored nine-identity expectation independently of the eight-record API response.",
+        "finding": "Generated n0..8 plusone defines IDs1..9. Left reconciliation preserves absentID6 and present-but-unnamedID4 as different states, with seven named records. Contiguous IDs are a fixture contract, not an assumption about real identity schemes."
+      }
+    },
+    {
+      "object": {
+        "schema": "examples",
+        "name": "greet"
+      },
+      "notebook": "02_page_size_is_not_roster_completeness.ipynb",
+      "sql": [
+        {
+          "cell": "reconcile-query",
+          "reference": "trajectory.examples.greet"
+        }
+      ],
+      "narrative_cells": [
+        "reconcile-story",
+        "checks-story"
+      ],
+      "result_cells": [
+        "reconcile-query",
+        "summary-finding",
+        "checks-finding"
+      ],
+      "interpretation_cells": [
+        "summary-finding",
+        "experiment-story"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-14T22:29:19.912297+00:00",
+        "notebook_sha256": "0ba31cc65af2aa8caf9d96905c185e9aa8470fea545cadacf62741b918ea9dcb",
+        "catalog_sha256": [
+          "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b",
+          "86f89e4d81ad066821cd37cdbccfb04ee6fba0ebbd267b68a059cc890c67ad25"
+        ],
+        "purpose": "Create two tones of draft strings without inventing names for incomplete roster states.",
+        "finding": "Actual one-argument casual and two-argument formal overloads return seven greetings each and NULL for both unnamed/missing identities. SQL checks exact name preservation and punctuation. No messages are sent; draft count remains fixed when page size changes."
+      }
+    }
+  ]
+}

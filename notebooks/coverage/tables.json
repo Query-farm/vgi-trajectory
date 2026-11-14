@@ -1,0 +1,52 @@
+{
+  "query": "SELECT * FROM duckdb_tables() WHERE database_name='trajectory'",
+  "captured_at": "2026-11-14T22:14:48.819339+00:00",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "schema_name",
+    "schema_oid",
+    "table_name",
+    "table_oid",
+    "comment",
+    "tags",
+    "internal",
+    "temporary",
+    "has_primary_key",
+    "estimated_size",
+    "column_count",
+    "index_count",
+    "check_constraint_count",
+    "sql"
+  ],
+  "rows": [
+    [
+      "trajectory",
+      22592,
+      "main",
+      22593,
+      "demo_input",
+      22791,
+      "Two synthetic GPS tracks demonstrating a between-fix crossing and a stop",
+      {
+        "domain": "geospatial",
+        "vgi.category": "gis",
+        "vgi.doc_llm": "Four fixes in EPSG:32618 at UTC times. The crossing entity moves from 10 m west to 10 m east of a 20 m wide fence in 120 seconds; neither fix is inside. The stopped entity remains inside for 600 seconds. Use with the bundled fences.json.",
+        "vgi.doc_md": "## Demo GPS fixes\n\nFour fixes in EPSG:32618 at UTC times. The crossing entity moves from 10 m west to 10 m east of a 20 m wide fence in 120 seconds; neither fix is inside. The stopped entity remains inside for 600 seconds. Use with the bundled fences.json.",
+        "vgi.example_queries": "[{\"description\": \"Count observations per synthetic entity\", \"sql\": \"SELECT entity_id, count(*) FROM trajectory.main.demo_input GROUP BY entity_id ORDER BY entity_id\"}]",
+        "vgi.executable_examples": "[{\"description\": \"Demo GPS fixes on bundled synthetic data\", \"sql\": \"SELECT entity_id, count(*) FROM trajectory.main.demo_input GROUP BY entity_id ORDER BY entity_id\", \"expected_result\": [[\"crossing\", 2], [\"stopped\", 2]]}]",
+        "vgi.keywords": "[\"GIS\", \"geospatial\", \"trajectory\", \"analysis\", \"Arrow\", \"SQL\"]",
+        "vgi.result_columns_schema": "[{\"name\": \"entity_id\", \"type\": \"VARCHAR\", \"description\": \"Caller-owned vehicle or device identity.\"}, {\"name\": \"observed_at\", \"type\": \"TIMESTAMP\", \"description\": \"UTC GPS observation time; naive timestamps are interpreted as UTC.\"}, {\"name\": \"x\", \"type\": \"DOUBLE\", \"description\": \"Position X in input_crs.\"}, {\"name\": \"y\", \"type\": \"DOUBLE\", \"description\": \"Position Y in input_crs.\"}]",
+        "vgi.title": "Demo GPS fixes"
+      },
+      false,
+      false,
+      true,
+      0,
+      4,
+      1,
+      0,
+      "CREATE TABLE demo_input(entity_id VARCHAR, observed_at TIMESTAMP, x DOUBLE, y DOUBLE, PRIMARY KEY(entity_id, observed_at));"
+    ]
+  ]
+}

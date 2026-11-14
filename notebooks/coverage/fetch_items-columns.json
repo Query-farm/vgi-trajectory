@@ -1,0 +1,46 @@
+{
+  "query": "DESCRIBE SELECT * FROM trajectory.examples.fetch_items('http://127.0.0.1:1/v1')",
+  "captured_at": "2026-11-14T22:14:48.826586+00:00",
+  "columns": [
+    "column_name",
+    "column_type",
+    "null",
+    "key",
+    "default",
+    "extra"
+  ],
+  "rows": [
+    [
+      "id",
+      "BIGINT",
+      "YES",
+      null,
+      null,
+      null
+    ],
+    [
+      "name",
+      "VARCHAR",
+      "YES",
+      null,
+      null,
+      null
+    ],
+    [
+      "category",
+      "VARCHAR",
+      "YES",
+      null,
+      null,
+      null
+    ],
+    [
+      "price",
+      "DOUBLE",
+      "YES",
+      null,
+      null,
+      null
+    ]
+  ]
+}

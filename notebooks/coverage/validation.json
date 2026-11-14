@@ -1,0 +1,403 @@
+{
+  "schema_version": 1,
+  "status": "met",
+  "meets_target": true,
+  "catalogs": {
+    "released": {
+      "catalog_status": "verified",
+      "revision": "v0.1.0",
+      "catalog_sha256": "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b",
+      "collection_reconciled": true,
+      "denominator": 5,
+      "observed_objects": 5,
+      "required": 5,
+      "verified_count": 5,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 5,
+      "runtime_revisions": [
+        "v0.1.0"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "fetch_items"
+        },
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "greet"
+        },
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "sequence_table"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "demo_input"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "episodes"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "fetch_items",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "fetch_items(base_url VARCHAR, page_size BIGINT) -> TABLE(id BIGINT, name VARCHAR, category VARCHAR, price DOUBLE)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "optional"
+          ]
+        },
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "greet",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "greet(name VARCHAR) -> VARCHAR",
+            "greet(name VARCHAR, style VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "sequence_table",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "sequence_table(count BIGINT, step BIGINT) -> TABLE(n BIGINT, squared BIGINT)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "demo_input",
+          "kinds": [
+            "function",
+            "table"
+          ],
+          "signatures": [
+            "TABLE(entity_id VARCHAR, observed_at TIMESTAMP, x DOUBLE, y DOUBLE)",
+            "demo_input() -> TABLE(entity_id VARCHAR, observed_at TIMESTAMP, x DOUBLE, y DOUBLE)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "episodes",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "episodes(data TABLE, max_speed_m_s DOUBLE, max_points BIGINT, max_fences BIGINT, max_input_bytes BIGINT, max_segment_splits BIGINT, max_gap_s DOUBLE, fence_crs VARCHAR, max_episodes BIGINT, min_dwell_s DOUBLE, max_accuracy_m DOUBLE, fences VARCHAR, max_fence_vertices BIGINT, fence_buffer_m DOUBLE, max_json_bytes BIGINT, input_crs VARCHAR, max_path_vertices BIGINT, analysis_crs VARCHAR) -> TABLE(entity_id VARCHAR, episode_id BIGINT, episode_type VARCHAR, fence_id VARCHAR, started_at TIMESTAMP, ended_at TIMESTAMP, duration_s DOUBLE, distance_m DOUBLE, fix_count BIGINT, interpolated_boundaries BOOLEAN, left_censored BOOLEAN, right_censored BOOLEAN, status VARCHAR, geometry_wkb BLOB, analysis_crs VARCHAR)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    },
+    "current": {
+      "catalog_status": "verified",
+      "revision": "9f08af596b2b059028bd51bb849237adb77d96c2",
+      "catalog_sha256": "86f89e4d81ad066821cd37cdbccfb04ee6fba0ebbd267b68a059cc890c67ad25",
+      "collection_reconciled": true,
+      "denominator": 5,
+      "observed_objects": 5,
+      "required": 5,
+      "verified_count": 5,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 0,
+      "runtime_revisions": [
+        "v0.1.0"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "fetch_items"
+        },
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "greet"
+        },
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "sequence_table"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "demo_input"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "episodes"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "fetch_items",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "fetch_items(base_url VARCHAR, page_size BIGINT) -> TABLE(id BIGINT, name VARCHAR, category VARCHAR, price DOUBLE)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "optional"
+          ]
+        },
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "greet",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "greet(name VARCHAR) -> VARCHAR",
+            "greet(name VARCHAR, style VARCHAR) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "examples"
+          ],
+          "name": "sequence_table",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "sequence_table(count BIGINT, step BIGINT) -> TABLE(n BIGINT, squared BIGINT)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "demo_input",
+          "kinds": [
+            "function",
+            "table"
+          ],
+          "signatures": [
+            "TABLE(entity_id VARCHAR, observed_at TIMESTAMP, x DOUBLE, y DOUBLE)",
+            "demo_input() -> TABLE(entity_id VARCHAR, observed_at TIMESTAMP, x DOUBLE, y DOUBLE)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "episodes",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "episodes(data TABLE, max_speed_m_s DOUBLE, max_points BIGINT, max_fences BIGINT, max_input_bytes BIGINT, max_segment_splits BIGINT, max_gap_s DOUBLE, fence_crs VARCHAR, max_episodes BIGINT, min_dwell_s DOUBLE, max_accuracy_m DOUBLE, fences VARCHAR, max_fence_vertices BIGINT, fence_buffer_m DOUBLE, max_json_bytes BIGINT, input_crs VARCHAR, max_path_vertices BIGINT, analysis_crs VARCHAR) -> TABLE(entity_id VARCHAR, episode_id BIGINT, episode_type VARCHAR, fence_id VARCHAR, started_at TIMESTAMP, ended_at TIMESTAMP, duration_s DOUBLE, distance_m DOUBLE, fix_count BIGINT, interpolated_boundaries BOOLEAN, left_censored BOOLEAN, right_censored BOOLEAN, status VARCHAR, geometry_wkb BLOB, analysis_crs VARCHAR)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    }
+  },
+  "interface_drift": {
+    "known": true,
+    "current_only": [],
+    "released_only": [],
+    "changed": []
+  },
+  "notebooks": {
+    "01_visits_between_fixes.ipynb": {
+      "verified": true,
+      "issues": []
+    },
+    "02_page_size_is_not_roster_completeness.ipynb": {
+      "verified": true,
+      "issues": []
+    }
+  },
+  "examples": [
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "demo_input"
+      },
+      "notebook": "01_visits_between_fixes.ipynb",
+      "runtime_revision": "v0.1.0",
+      "runtime_catalog_sha256": "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "episodes"
+      },
+      "notebook": "01_visits_between_fixes.ipynb",
+      "runtime_revision": "v0.1.0",
+      "runtime_catalog_sha256": "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "examples"
+        ],
+        "name": "fetch_items"
+      },
+      "notebook": "02_page_size_is_not_roster_completeness.ipynb",
+      "runtime_revision": "v0.1.0",
+      "runtime_catalog_sha256": "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "examples"
+        ],
+        "name": "sequence_table"
+      },
+      "notebook": "02_page_size_is_not_roster_completeness.ipynb",
+      "runtime_revision": "v0.1.0",
+      "runtime_catalog_sha256": "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "examples"
+        ],
+        "name": "greet"
+      },
+      "notebook": "02_page_size_is_not_roster_completeness.ipynb",
+      "runtime_revision": "v0.1.0",
+      "runtime_catalog_sha256": "392b07a7084be3e16a68fa9220678a40be623d78e28675c81d477b6d0410b34b"
+    }
+  ],
+  "issues": []
+}

@@ -1,145 +1,130 @@
-# Trajectory notebooks
+# VGI Trajectory Worker examples
 
-<a href="https://query.farm/"><img src="assets/query-farm-strata-sun.svg" alt="Query.Farm — Strata Sun" width="252"></a>
+| Notebook | Question | One-parameter experiment |
+|---|---|---|
+| [01 · A visit with no fixes inside](01_visits_between_fixes.ipynb) | How much dwell can a linear model infer between GPS fixes? | Maximum interpolated gap 900 → 60 seconds |
+| [02 · Check a paged roster before drafting greetings](02_page_size_is_not_roster_completeness.ipynb) | Does complete pagination imply complete expected-identity coverage? | Requested page size 3 → 5 records |
 
-<a href="https://query.farm/vgi/"><img src="assets/vgi-logo.png" alt="VGI — Vector Gateway Interface" width="280"></a>
-
-[Query.Farm](https://query.farm/) · [VGI](https://query.farm/vgi/) · [Haybarn](https://query.farm/products/haybarn/)
-
-| Notebook | Investigation |
-|---|---|
-| [01 · A visit with no fixes inside](01_visits_between_fixes.ipynb) | Compare sampled geofence membership with inferred entry, exit, dwell and trips; lower the interpolation gap limit to expose unknown movement. |
-
-This independently executable Python notebook uses a native Haybarn connection,
-JupySQL `%%sql`, the real VGI extension and the published Python worker at a full Git revision. SQL
-performs retrieval, spatial membership checks, reconstruction and aggregation.
-Python supplies presentation. Successful outputs, including three PNG charts,
-are saved in the notebook.
-
-## Install and select a kernel
-
-From a standalone copy of this notebooks directory, with [uv](https://docs.astral.sh/uv/) installed:
+Use each notebook's **Open in Colab** link and **Runtime → Run all**. The short
+bootstrap installs only the shared base package and retrieves immutable,
+SHA256-verified companions. For local execution install [uv](https://docs.astral.sh/uv/)
+and Git, then run from `notebooks/`:
 
 ```sh
 uv sync --locked
+uv run --locked vgi-notebooks
+uv run --locked vgi-notebooks 01_visits_between_fixes.ipynb --parameters '{"MAX_GAP_S":60.0}' --output-dir artifacts/gap-60
+uv run --locked vgi-notebooks 02_page_size_is_not_roster_completeness.ipynb --parameters '{"PAGE_SIZE":5}' --output-dir artifacts/page-5
 ```
 
-The visible literal ATTACH uses uvx to install the worker from public Git revision
-`79d882f829fe45d0ef9a5ac2d7ad5b85c773f4f2`. It requires Python 3.13 or newer and preserves the
-worker's SDK compatibility range. The separate notebook environment supports
-Python 3.13–3.14 and pins Haybarn 2.0.0rc11. No source checkout or root virtual
-environment is needed. First dependency and extension installation needs network
-access; the actual analysis uses local synthetic inputs with no replay/live switch.
+For Jupyter select `.venv/bin/python`. The locked `[runner]` extra is local tooling;
+Colab installs the base package only. Overrides require a separate destination,
+unknown parameters fail and failed execution cannot replace a successful default.
+If an older setup replaced kernel libraries, use a fresh runtime.
 
-Choose `.venv/bin/python` in your notebook editor, then restart and run all.
-Alternatively register that kernel explicitly:
+## Portable release and shared presentation
 
-```sh
-uv run python -m ipykernel install --user --name vgi-trajectory-notebooks --display-name "VGI Trajectory notebooks"
+```sql
+INSTALL vgi FROM community;
+LOAD vgi;
+ATTACH 'trajectory' (TYPE vgi,
+  LOCATION 'uvx --python 3.13 --from git+https://github.com/Query-farm/vgi-trajectory@v0.1.0 vgi-trajectory-worker');
 ```
 
-The runner creates its own temporary kernel specification without registration.
-To upgrade the worker, change the visible full revision, verify that
-fixtures/fences.json still matches that revision's bundled fence, and rerun the
-default, focused experiment and invariants; compatibility must be verified through Haybarn.
+The public v0.1.0 tag owns its worker dependencies in a separate Python 3.13
+environment. The notebook lock does not lock that worker environment. The first
+book also visibly installs and loads DuckDB Spatial. Initial Git, package,
+extension and companion retrieval needs internet; the analyses themselves use
+bounded synthetic inputs. No worker checkout, root virtual environment, real API
+credential or external dataset is required. macOS arm64 was tested; other
+platforms were not executed.
 
-The visible parameters cell controls `MAX_GAP_S`, the largest interval between
-fixes that the worker will interpolate. It accepts finite positive seconds.
-Edit it and **Restart Kernel → Run All**. The default is **900.0**; the end
-experiment uses **60.0**. The worker rejects intervals strictly greater than the
-limit, so an interval equal to the limit remains eligible.
+The [shared v0.3.27 standard](https://github.com/Query-farm/vgi-example-notebooks/blob/v0.3.27/docs/standard.md) provides catalog-derived title/subtitle, branding, isolated
+SQL connection, SVG presentation and a protected runner. Keep `charts/` beside
+saved notebooks for GitHub image links; interactive runs retain native SVG.
+Review PNGs, logs, experiment copies and generated files stay ignored. Hosted
+Colab was not manually operated; a fresh compatible kernel preloads eight common
+libraries before executing the second notebook's visible bootstrap. Both stories
+use the same short worker launch and companion registry path.
 
-Imports, styling, plotting source, generated prose source and cleanup have both
-Jupyter folding metadata and descriptive tags. Connection SQL, analytical SQL,
-tables, interpretations and charts remain visible. Some editors retain folding
-in their own state: if Python inputs expand, use **Collapse Cell Input**
-on the tagged setup/plotting cells while leaving their useful outputs expanded.
+`trajectory_example.py` only validates input parameters/fixture bytes and renders
+results. `roster_fixture.py` defines the second story's explicit synthetic HTTP
+input and records raw requests; it does not replace worker paging or compute
+analytical results. Retrieval, reconciliation, geometry and summaries remain
+visible SQL. Ordinary in-memory tables are intentional: JupySQL cursors do not
+share cursor-local temporary tables or registered DataFrame views. Final cleanup
+closes the SQL connection and the loopback service.
 
-## Execute and save
+## Complete coverage and current source
 
-From this notebooks directory:
+Actual functions, tables, views, arguments and output-schema exports identify
+**five public named surfaces**, all meaningfully covered across these stories:
+`main.demo_input`, `main.episodes`, `examples.sequence_table`, `examples.fetch_items`
+and `examples.greet`. The six function rows include two `greet` overloads; the
+`demo_input` catalog table and same-named table function count once. The examples
+schema remains in the denominator even though it is separate from GPS analysis.
+No public object is omitted. Authentication behavior is not claimed as covered.
 
-```sh
-uv run python execute.py
-```
+Release v0.1.0 resolves to the same public-main source revision reviewed here:
+`9f08af596b2b059028bd51bb849237adb77d96c2`. The runtime inventory therefore supports
+both released and current-source interfaces; notebooks execute the tagged launch.
+`coverage.json` and `coverage/` retain reviewed object mappings, raw catalog
+exports, full signatures, metadata provenance and hashed execution receipts.
+Existing green [source CI](https://github.com/Query-farm/vgi-trajectory/actions/runs/43614815243)
+is reused. Worker source and root dependencies are unchanged; no source rebuild,
+repeated worker suite, deployment, image publication or new worker release is needed.
 
-The runner creates a temporary kernel specification with this interpreter,
-starts a fresh kernel, rejects cell errors and saves the notebook only after a
-successful run. It does not install a global kernel. A failed run leaves the
-previous successful example unchanged.
+## GPS inputs, units and model limits
 
-Verify the one-parameter experiment in a separate copy:
-
-```sh
-uv run python execute.py \
-  --parameters '{"MAX_GAP_S": 60.0}' \
-  --output-dir artifacts/gap-60
-```
-
-The runner rejects unknown parameters, overrides without a separate output
-directory, and destinations that would overwrite the source. It writes atomically
-only after complete success. Experiment copies contain branding, the fence fixture,
-helpers, locked environment files and this guide, so they can run independently.
-The focused experiment is also validated from a separate copy containing only the
-notebook directory. Generated files under `artifacts/` and older `validation/`
-are ignored. A failed run preserves the last successful saved default.
-
-The Haybarn connection starts with an empty temporary secret directory and
-persistent secrets disabled. It verifies an empty inventory before ATTACH and
-again before closing the connection and deleting that temporary directory. The
-synthetic computation needs no credential and creates no SQL secrets.
-
-The notebook checks timestamp durations, single-fence time accounting,
-independently computed spatial path lengths, and NULL geometry/distance for gaps.
-They check internal consistency, not the truth of unobserved vehicle movements.
-The source passed `make release-check`: 23 pytest tests; 146 stdio, 146 Unix-launch
-and 107 HTTP SQL assertions; six stock DuckDB contracts and six isolated sdist-built
-wheel contracts; Ruff, strict mypy and pydoclint; metadata 100/100 L2 with zero findings.
-Domain code, the current external metadata/example commit and root dependency lock
-were preserved. No container image publication or deployment was performed.
-Notebook lint uses `uvx ruff check .` and `uvx ruff format --check .`.
-
-## Inputs, units and model limits
-
-- `trajectory.main.demo_input` supplies four synthetic fixes from the worker:
-  one crossing track and one stationary track, both starting at
-  **2026-01-01 00:00:00 UTC**. Their last fixes occur at 00:02:00 and 00:10:00 UTC.
-- [`fixtures/fences.json`](fixtures/fences.json)
-  is an unchanged copy of the published worker fixture and supplies the same yard polygon used by `demo://fences.json`. This fixture
-  deliberately contains projected coordinates, unlike ordinary geographic
-  GeoJSON. Input, fence and analysis CRS are explicitly **EPSG:32618**,
-  WGS 84 / UTM zone 18N, X/Y order, metres. Map axes subtract a clearly labeled
-  origin for legibility; no coordinate transformation is hidden.
-- “Van 7” and “Van 9” are illustrative SQL labels joined by `entity_id`.
+- `trajectory.main.demo_input` supplies four synthetic fixes: crossing and
+  stationary tracks starting **2026-01-01 00:00:00 UTC**, ending at 00:02:00 and
+  00:10:00 UTC respectively. “Van 7” and “Van 9” are illustrative SQL labels.
+- `fixtures/fences.json` is byte-identical to the released worker's bundled yard
+  polygon. It deliberately uses projected coordinates, unlike ordinary geographic
+  GeoJSON. Input, fence and analysis CRS are explicitly **EPSG:32618**, WGS 84 /
+  UTM zone 18N, XY order, metres. Map axes label their subtracted coordinate origin.
 - The worker interpolates straight segments at constant progress. It does not
-  map-match roads or establish the true unobserved route. Speed remains limited
-  to 80 m/s, supplied accuracy to 100 m, minimum dwell to 0 s and fence buffer
-  to 0 m. The bundled fixes do not supply accuracy measurements.
-- All source timestamps are included. Durations are elapsed seconds between
-  episode endpoints. Fix counts include both endpoints; a boundary fix may
-  belong to adjacent episodes. Never sum those counts as unique observations.
-- Censored endpoints indicate incomplete observation of the start/end of a
-  visit. A stationary model does not prove the vehicle stayed there throughout.
-  Gaps retain unavailable distance, distinct from a stationary path's zero.
-- The time-partition invariant applies to this single fence with no dwell
-  filtering. Overlapping fences or filtering short visits change that accounting.
+  map-match roads or establish unobserved ground truth. Speed remains limited to
+  80 m/s, supplied accuracy to 100 m, minimum dwell to 0 s and fence buffer to 0 m.
+  These fixes do not supply accuracy measurements.
+- Durations are elapsed seconds. Fix counts include both endpoints; a boundary
+  fix can belong to adjacent episodes. Summing them would not count unique fixes.
+- Censored endpoints indicate incomplete observation of the beginning/end of a
+  visit. A stationary model does not prove the vehicle remained there throughout.
+  Gaps retain NULL distance, distinct from stationary movement's zero distance.
+- Time-partition checks apply to this single fence without dwell filtering.
+  Overlapping fences or filtering visits changes that accounting.
 
-The default run reconstructs a **60 s** yard visit with **zero recorded fixes
-inside**, between 00:00:30 and 00:01:30 UTC, plus two 30 s trips. The stationary
-track produces a **600 s** modeled visit with both endpoints censored. At a
-60 s maximum gap, both tracks become `long_gap`: **720 entity-seconds** of unknown
-movement and NULL distances. The stricter result reflects a changed inference
-rule, not newly observed movement.
+The default reconstructs a **60 s** yard visit with **zero recorded fixes inside**,
+from 00:00:30 to 00:01:30 UTC, and two 30 s trips. The stationary track produces a
+**600 s** modeled visit with both endpoints censored. At a 60 s gap limit, both
+tracks become `long_gap`: **720 entity-seconds** of unknown movement and NULL
+distances. Only intervals strictly greater than the limit become gaps; equality
+remains eligible. SQL recomputes time partitions and Spatial path lengths. These
+are internal-consistency checks, not evidence of the real route.
 
-`notebook_support.py` only handles formatting, parameter validation and chart presentation. Analytical SQL remains visible in the notebook.
-Ordinary in-memory tables are intentional because JupySQL uses separate cursors;
-temporary tables may be cursor-local. The final cleanup closes the connection.
+## Paged input, missing identity and missing name
 
-The two branding assets are copied unchanged from `vgi-perps/notebooks/assets/`.
-The Strata Sun + Query.Farm wordmark originates from the official adaptive
-`logo/wordmark-adaptive.svg`; the VGI logo originates from
-`products/vgi/vgi-logo.png` in the Query.Farm media kit. Both are local assets.
+The second story covers the retained `examples` APIs with an explicitly synthetic
+loopback service. It has eight records: IDs 1,2,3,4,5,7,8,9; ID 4 has a NULL name.
+An independently authored expected roster is IDs 1..9, generated by
+`sequence_table(9)`. This contiguous range is a fixture assumption, never a claim
+about real identity schemes. Category and USD-price fields are schema examples,
+not inputs to the roster decision.
 
----
+The actual `fetch_items` implementation follows `next_page` and materializes the
+complete response once. Page size 3 yields three requests (3+3+2 records); size 5
+yields two (5+3). The source fingerprint and all nine expected identities remain
+fixed. SQL identifies one absent record separately from one present unnamed
+record. Both greeting overloads produce seven draft strings and preserve NULL
+names. No messages are sent. Twelve SQL checks cover populations, joins, drafts
+and the exact request trail; no `LIMIT` is used to imply a network bound.
 
-<a href="https://query.farm/"><img src="assets/query-farm-strata-sun.svg" alt="Query.Farm — Strata Sun" width="210"></a>
+Both notebooks start with an empty temporary SQL-secret directory and persistent
+secrets disabled. The second also removes the worker's inherited
+`TRAJECTORY_API_TOKEN` before launching it, restores that environment variable
+without displaying it during cleanup, and rejects any request carrying an
+Authorization header. Its audit records only a presence boolean, never a header
+value. No saved credential is used. The fixture has a stable snapshot; another
+API would need its own consistency guarantees, completeness contract and explicit
+authentication setup. This notebook does not validate those live properties.

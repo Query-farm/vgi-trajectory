@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "repository": "Query-farm/vgi-trajectory",
+  "revision": "v0.1.0",
+  "captured_at": "2026-11-14T22:14:48.812589+00:00",
+  "default_schema": "main",
+  "scope": "all_public_functions_and_tables",
+  "complete": true,
+  "evidence": [
+    {
+      "path": "coverage/arguments.json",
+      "sha256": "43d1c178b4d1e77f893230a287fd7530959e7c15e21d3d512c3434d0afe79649",
+      "description": "Actual complete released runtime inventory; current source is identical Git revision. Full arguments and output columns retained."
+    },
+    {
+      "path": "coverage/catalog-metadata.json",
+      "sha256": "179c4d5034f3ca79f49d96fa41c507422c9e1e93bdb34f10a433622b34d7401d",
+      "description": "Actual complete released runtime inventory; current source is identical Git revision. Full arguments and output columns retained."
+    },
+    {
+      "path": "coverage/demo_input-columns.json",
+      "sha256": "80aa5586f20de713f615864e9469b28ddcf070f06b5638ec37333f3b8ab68a87",
+      "description": "Actual complete released runtime inventory; current source is identical Git revision. Full arguments and output columns retained."
+    },
+    {
+      "path": "coverage/episodes-columns.json",
+      "sha256": "3f8cca28cc4544281ab650fe4f360362b352de2d58a2d5a4fe3ec5c96d03b31e",
+      "description": "Actual complete released runtime inventory; current source is identical Git revision. Full arguments and output columns retained."
+    },
+    {
+      "path": "coverage/fetch_items-columns.json",
+      "sha256": "3d239f804ea8c12bff1d694f0fff2f33f64b081fe49a30c2b95e37c442e9ceca",
+      "description": "Actual complete released runtime inventory; current source is identical Git revision. Full arguments and output columns retained."
+    },
+    {
+      "path": "coverage/functions.json",
+      "sha256": "2b53a962bfdfd56a22d8d87405ed8db663a0fd2d6222fb3f293f32a9ce230d4d",
+      "description": "Actual complete released runtime inventory; current source is identical Git revision. Full arguments and output columns retained."
+    },
+    {
+      "path": "coverage/sequence_table-columns.json",
+      "sha256": "132e2e5b4f4435b46eaafb00cc5f7e36f56b112e654cd4a89128b320fb6e5d09",
+      "description": "Actual complete released runtime inventory; current source is identical Git revision. Full arguments and output columns retained."
+    },
+    {
+      "path": "coverage/source-compatibility.json",
+      "sha256": "7fa455e6959193aa640eee424755879beb653f282c2c40ab408ca4ab89841366",
+      "description": "Actual complete released runtime inventory; current source is identical Git revision. Full arguments and output columns retained."
+    },
+    {
+      "path": "coverage/tables.json",
+      "sha256": "c1ff3314004831d154e4cbf2a36943222b67e4f8d7916c27b23d2fdf6cd94527",
+      "description": "Actual complete released runtime inventory; current source is identical Git revision. Full arguments and output columns retained."
+    },
+    {
+      "path": "coverage/views.json",
+      "sha256": "0694c93470f249e4e008afe8e9004c1206e512b97c5a259e9c0e88e4f61b3185",
+      "description": "Actual complete released runtime inventory; current source is identical Git revision. Full arguments and output columns retained."
+    }
+  ],
+  "objects": [
+    {
+      "schema": "examples",
+      "name": "fetch_items",
+      "kind": "function",
+      "authentication": "optional",
+      "access": "read",
+      "signatures": [
+        "fetch_items(base_url VARCHAR, page_size BIGINT) -> TABLE(id BIGINT, name VARCHAR, category VARCHAR, price DOUBLE)"
+      ],
+      "access_kinds": [
+        "table"
+      ]
+    },
+    {
+      "schema": "examples",
+      "name": "greet",
+      "kind": "function",
+      "authentication": "none",
+      "access": "read",
+      "signatures": [
+        "greet(name VARCHAR) -> VARCHAR",
+        "greet(name VARCHAR, style VARCHAR) -> VARCHAR"
+      ],
+      "access_kinds": [
+        "scalar"
+      ]
+    },
+    {
+      "schema": "examples",
+      "name": "sequence_table",
+      "kind": "function",
+      "authentication": "none",
+      "access": "read",
+      "signatures": [
+        "sequence_table(count BIGINT, step BIGINT) -> TABLE(n BIGINT, squared BIGINT)"
+      ],
+      "access_kinds": [
+        "table"
+      ]
+    },
+    {
+      "schema": "main",
+      "name": "demo_input",
+      "kind": "function",
+      "authentication": "none",
+      "access": "read",
+      "signatures": [
+        "demo_input() -> TABLE(entity_id VARCHAR, observed_at TIMESTAMP, x DOUBLE, y DOUBLE)"
+      ],
+      "access_kinds": [
+        "table",
+        "catalog_table"
+      ]
+    },
+    {
+      "schema": "main",
+      "name": "episodes",
+      "kind": "function",
+      "authentication": "none",
+      "access": "read",
+      "signatures": [
+        "episodes(data TABLE, max_speed_m_s DOUBLE, max_points BIGINT, max_fences BIGINT, max_input_bytes BIGINT, max_segment_splits BIGINT, max_gap_s DOUBLE, fence_crs VARCHAR, max_episodes BIGINT, min_dwell_s DOUBLE, max_accuracy_m DOUBLE, fences VARCHAR, max_fence_vertices BIGINT, fence_buffer_m DOUBLE, max_json_bytes BIGINT, input_crs VARCHAR, max_path_vertices BIGINT, analysis_crs VARCHAR) -> TABLE(entity_id VARCHAR, episode_id BIGINT, episode_type VARCHAR, fence_id VARCHAR, started_at TIMESTAMP, ended_at TIMESTAMP, duration_s DOUBLE, distance_m DOUBLE, fix_count BIGINT, interpolated_boundaries BOOLEAN, left_censored BOOLEAN, right_censored BOOLEAN, status VARCHAR, geometry_wkb BLOB, analysis_crs VARCHAR)"
+      ],
+      "access_kinds": [
+        "table"
+      ]
+    },
+    {
+      "schema": "main",
+      "name": "demo_input",
+      "kind": "table",
+      "authentication": "none",
+      "access": "read",
+      "signatures": [
+        "TABLE(entity_id VARCHAR, observed_at TIMESTAMP, x DOUBLE, y DOUBLE)"
+      ]
+    }
+  ],
+  "launch": "uvx --python 3.13 --from git+https://github.com/Query-farm/vgi-trajectory@v0.1.0 vgi-trajectory-worker",
+  "runtime": "Haybarn2.0.0rc11",
+  "review_notes": "Six function rows (two greet overloads) plus one catalog table group to five (schema,name) surfaces. demo_input catalog table/callable table function counts once. Three examples-schema APIs remain included. No views, writes or auth-required surfaces omitted. Current and release are the same immutable worker source; only tagged launch executed."
+}

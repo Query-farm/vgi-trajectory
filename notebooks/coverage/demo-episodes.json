@@ -1,0 +1,41 @@
+{
+  "query": "SELECT entity_id,episode_type,duration_s,fix_count,status FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) ORDER BY entity_id,started_at",
+  "captured_at": "2026-11-14T22:14:49.400023+00:00",
+  "columns": [
+    "entity_id",
+    "episode_type",
+    "duration_s",
+    "fix_count",
+    "status"
+  ],
+  "rows": [
+    [
+      "crossing",
+      "trip",
+      30.0,
+      1,
+      "linear_interpolation"
+    ],
+    [
+      "crossing",
+      "visit",
+      60.0,
+      0,
+      "linear_interpolation"
+    ],
+    [
+      "crossing",
+      "trip",
+      30.0,
+      1,
+      "linear_interpolation"
+    ],
+    [
+      "stopped",
+      "visit",
+      600.0,
+      2,
+      "linear_interpolation"
+    ]
+  ]
+}

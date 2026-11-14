@@ -5,3 +5,4 @@ validation/
 artifacts/
 .ruff_cache/
 kernel-ipc-*
+.vgi-examples/

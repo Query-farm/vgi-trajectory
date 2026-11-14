@@ -1,0 +1,46 @@
+{
+  "query": "DESCRIBE SELECT * FROM trajectory.main.demo_input",
+  "captured_at": "2026-11-14T22:14:48.823471+00:00",
+  "columns": [
+    "column_name",
+    "column_type",
+    "null",
+    "key",
+    "default",
+    "extra"
+  ],
+  "rows": [
+    [
+      "entity_id",
+      "VARCHAR",
+      "NO",
+      "PRI",
+      null,
+      null
+    ],
+    [
+      "observed_at",
+      "TIMESTAMP",
+      "YES",
+      "PRI",
+      null,
+      null
+    ],
+    [
+      "x",
+      "DOUBLE",
+      "YES",
+      null,
+      null,
+      null
+    ],
+    [
+      "y",
+      "DOUBLE",
+      "YES",
+      null,
+      null,
+      null
+    ]
+  ]
+}

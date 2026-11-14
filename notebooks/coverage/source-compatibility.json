@@ -1,0 +1,20 @@
+{
+  "release": "v0.1.0",
+  "release_commit": "9f08af596b2b059028bd51bb849237adb77d96c2",
+  "current_revision": "9f08af596b2b059028bd51bb849237adb77d96c2",
+  "same_revision": true,
+  "source_ci": {
+    "url": "https://github.com/Query-farm/vgi-trajectory/actions/runs/43614815243",
+    "revision": "9f08af596b2b059028bd51bb849237adb77d96c2",
+    "conclusion": "success"
+  },
+  "runtime": "Haybarn2.0.0rc11",
+  "launch": "uvx --python 3.13 --from git+https://github.com/Query-farm/vgi-trajectory@v0.1.0 vgi-trajectory-worker",
+  "source_review": "Release tag resolves to the exact public-main source revision reviewed before notebook edits. Same catalog, signatures and implementation; retained examples schema remains part of denominator. Source and root lock unchanged; green source CI reused.",
+  "metadata_provenance": "Actual duckdb_databases tags vgi.title/vgi.subtitle, catalog-metadata.json; title VGI Trajectory Worker; subtitle Reconstruct visits, dwell and trips from GPS observations.",
+  "limitations": [
+    "GPS outputs describe piecewise-linear interpolation, not observed ground truth.",
+    "fetch_items optional SQL/env authentication is isolated and not exercised; explicit synthetic loopback endpoint tests actual unchanged paging/schema code.",
+    "No real messages or API writes."
+  ]
+}

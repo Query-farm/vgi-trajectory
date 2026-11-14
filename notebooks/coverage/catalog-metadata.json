@@ -1,0 +1,48 @@
+{
+  "query": "SELECT * FROM duckdb_databases() WHERE database_name='trajectory'",
+  "captured_at": "2026-11-14T22:14:48.821532+00:00",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "path",
+    "comment",
+    "tags",
+    "internal",
+    "type",
+    "readonly",
+    "encrypted",
+    "cipher",
+    "options"
+  ],
+  "rows": [
+    [
+      "trajectory",
+      22592,
+      null,
+      "Reconstruct visits and trips from timestamped GPS rows, including geofence crossings between fixes. The worker buffers within an explicit point budget, sorts by entity and UTC time, intersects each piecewise-linear track with polygons, and emits visits, trips, and explicit observation gaps. Long gaps, implausible speeds and poor-accuracy fixes never create inferred visits. Durations and paths describe the linear interpolation model, not unobserved ground truth.",
+      {
+        "vgi.agent_test_tasks": "[{\"name\": \"formal_greeting\", \"prompt\": \"Using the trajectory worker, greet the name 'Grace' formally.\"}, {\"name\": \"sum_of_squares\", \"prompt\": \"Using the trajectory worker, what is the sum of the squared column for the first 10 rows of the sequence with the default step?\"}, {\"name\": \"stepped_sequence\", \"prompt\": \"List the n values of a 4-row sequence that steps by 5, in ascending order.\"}, {\"name\": \"items_per_category\", \"prompt\": \"The items API is running at https://vgi-starter-api.query-farm.services/v1. How many items does it have in each category?\"}, {\"name\": \"gis_demo_input\", \"prompt\": \"Count observations per synthetic entity. Use the bundled synthetic inputs and return the columns and ordering shown in its catalog example.\"}, {\"name\": \"gis_episodes\", \"prompt\": \"Recover a visit even though neither recorded fix is inside the fence. Use the bundled synthetic inputs and return the columns and ordering shown in its catalog example.\"}, {\"name\": \"gis_gap_sensitivity\", \"prompt\": \"Using the trajectory worker's bundled demo GPS fixes and its default fences, which entities have a fence visit with the default settings but no fence visit when the maximum interpolation gap is tightened to 300 seconds? Return one VARCHAR column entity_id, ordered by entity_id.\"}, {\"name\": \"gis_trip_distance_and_fixes\", \"prompt\": \"Using the trajectory worker's bundled demo GPS fixes and its default fences, report for every demo entity the total metres travelled in reconstructed trip episodes (0.0 when it has no trips) alongside how many GPS fixes it recorded. Return entity_id (VARCHAR), trip_m (DOUBLE) and fixes (BIGINT), ordered by entity_id.\"}]",
+        "vgi.author": "Query.Farm",
+        "vgi.copyright": "Copyright 2026 Query.Farm LLC",
+        "vgi.doc_llm": "Reconstruct visits and trips from timestamped GPS rows, including geofence crossings between fixes. The worker buffers within an explicit point budget, sorts by entity and UTC time, intersects each piecewise-linear track with polygons, and emits visits, trips, and explicit observation gaps. Long gaps, implausible speeds and poor-accuracy fixes never create inferred visits. Durations and paths describe the linear interpolation model, not unobserved ground truth.",
+        "vgi.doc_md": "## GIS analysis\n\nReconstruct visits and trips from timestamped GPS rows, including geofence crossings between fixes. The worker buffers within an explicit point budget, sorts by entity and UTC time, intersects each piecewise-linear track with polygons, and emits visits, trips, and explicit observation gaps. Long gaps, implausible speeds and poor-accuracy fixes never create inferred visits. Durations and paths describe the linear interpolation model, not unobserved ground truth.\n\n### SQL workflow\n\nPass query results to the main schema functions, retaining IDs for joins. Use bundled synthetic data to try the executable examples without network access. CRS, coverage, inference limits and resource bounds are explicit function parameters. The examples schema preserves the SDK regression recipes.",
+        "vgi.icon_url": "https://query.farm/media-kit/products/vgi/vgi-logo.png",
+        "vgi.keywords": "[\"vgi\", \"duckdb\", \"trajectory\", \"gps\", \"geofence\", \"visits\", \"dwell time\", \"trips\", \"gis\", \"table function\"]",
+        "vgi.license": "0BSD",
+        "vgi.source_url": "https://github.com/Query-farm/vgi-trajectory",
+        "vgi.subtitle": "Reconstruct visits, dwell and trips from GPS observations.",
+        "vgi.support_contact": "https://github.com/Query-farm/vgi-trajectory/issues",
+        "vgi.support_policy_url": "https://github.com/Query-farm/vgi-trajectory#support",
+        "vgi.title": "VGI Trajectory Worker"
+      },
+      false,
+      "vgi",
+      false,
+      false,
+      null,
+      {
+        "location": "uvx --python 3.13 --from git+https://github.com/Query-farm/vgi-trajectory@v0.1.0 vgi-trajectory-worker"
+      }
+    ]
+  ]
+}
