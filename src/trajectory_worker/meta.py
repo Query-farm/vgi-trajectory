@@ -18,7 +18,7 @@ import pyarrow as pa
 
 CATALOG_NAME = "trajectory"
 
-SOURCE_URL = "https://github.com/Query-farm/vgi-starter-python"
+SOURCE_URL = "https://github.com/Query-farm/vgi-trajectory"
 
 # Categories group functions in docs and agent tools. Every object's
 # ``vgi.category`` must name one of these.
@@ -131,6 +131,20 @@ AGENT_TEST_TASKS.extend(
             "bundled synthetic inputs and return the columns and ordering shown in its "
             "catalog example.",
         },
+        {
+            "name": "gis_gap_sensitivity",
+            "prompt": "Using the trajectory worker's bundled demo GPS fixes and its default fences, which "
+            "entities have a fence visit with the default settings but no fence visit when the maximum "
+            "interpolation gap is tightened to 300 seconds? Return one VARCHAR column entity_id, ordered "
+            "by entity_id.",
+        },
+        {
+            "name": "gis_trip_distance_and_fixes",
+            "prompt": "Using the trajectory worker's bundled demo GPS fixes and its default fences, report for "
+            "every demo entity the total metres travelled in reconstructed trip episodes (0.0 when it has "
+            "no trips) alongside how many GPS fixes it recorded. Return entity_id (VARCHAR), trip_m (DOUBLE) "
+            "and fixes (BIGINT), ordered by entity_id.",
+        },
     ]
 )
 
@@ -144,7 +158,9 @@ CATALOG_TAGS = {
     "vgi.license": "0BSD",
     "vgi.author": "Query.Farm",
     "vgi.copyright": "Copyright 2026 Query.Farm LLC",
-    "vgi.keywords": keywords_array("vgi, duckdb, starter template, example worker, rest api, table function"),
+    "vgi.keywords": keywords_array(
+        "vgi, duckdb, trajectory, gps, geofence, visits, dwell time, trips, gis, table function"
+    ),
     "vgi.support_contact": f"{SOURCE_URL}/issues",
     "vgi.support_policy_url": f"{SOURCE_URL}#support",
     # Public analyst tasks for `vgi-lint simulate`; private graders live in vgi-agent-tests.yaml.

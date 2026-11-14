@@ -478,6 +478,26 @@ EPISODE_SQL = (
     "FROM trajectory.main.demo_input)) WHERE episode_type='visit' ORDER BY entity_id"
 )
 
+# Composed examples: episodes() output joined back to the demo_input fixes it was built from.
+VISIT_LAST_FIX_SQL = (
+    "SELECT v.entity_id, v.fence_id, v.started_at, f.observed_at AS last_fix_at, "
+    "date_diff('second', f.observed_at, v.started_at) AS seconds_after_fix, v.fix_count "
+    "FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) AS v "
+    "ASOF JOIN trajectory.main.demo_input AS f "
+    "ON v.entity_id = f.entity_id AND v.started_at >= f.observed_at "
+    "WHERE v.episode_type = 'visit' ORDER BY v.entity_id, v.started_at"
+)
+VISIT_SHARE_SQL = (
+    "WITH span AS (SELECT entity_id, date_diff('second', min(observed_at), max(observed_at)) AS observed_s "
+    "FROM trajectory.main.demo_input GROUP BY entity_id), "
+    "visits AS (SELECT entity_id, sum(duration_s) AS visit_s "
+    "FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) "
+    "WHERE episode_type = 'visit' GROUP BY entity_id) "
+    "SELECT span.entity_id, span.observed_s, coalesce(visits.visit_s, 0) AS visit_s, "
+    "round(coalesce(visits.visit_s, 0) / span.observed_s, 3) AS visit_share "
+    "FROM span LEFT JOIN visits USING (entity_id) ORDER BY span.entity_id"
+)
+
 
 class Episodes(TableBufferingFunction[EpisodeArgs, Drain]):
     """Buffer across batches and workers before reconstructing complete tracks."""
@@ -501,7 +521,20 @@ class Episodes(TableBufferingFunction[EpisodeArgs, Drain]):
             EPISODE_SQL,
             [["crossing", 60.0, 0], ["stopped", 600.0, 2]],
         )
-        examples = example(EPISODE_SQL, "Recover a visit even though neither recorded fix is inside the fence")
+        examples = [
+            *example(EPISODE_SQL, "Recover a visit even though neither recorded fix is inside the fence"),
+            *example(
+                VISIT_LAST_FIX_SQL,
+                "ASOF-join each reconstructed visit back to the last demo_input fix at or before its entry: "
+                "the crossing entity entered the yard 30 seconds after its last fix and has zero fixes inside, "
+                "while the stopped entity's visit starts at a recorded fix",
+            ),
+            *example(
+                VISIT_SHARE_SQL,
+                "Share of each entity's observed span (first to last demo_input fix) spent in fence visits: "
+                "crossing spends 60 of 120 seconds in the yard (0.5), stopped all 600 seconds (1.0)",
+            ),
+        ]
 
     @classmethod
     def on_bind(cls, params: BindParams[EpisodeArgs]) -> BindResponse:

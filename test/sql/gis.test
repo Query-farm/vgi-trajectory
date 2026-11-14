@@ -93,3 +93,17 @@ query II
 SELECT count(*), sum(fix_count) FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) WHERE episode_type='visit';
 ----
 2	2
+
+# Composed catalog example: ASOF-join each visit back to the last fix before entry.
+query TTTTTT
+SELECT v.entity_id, v.fence_id, v.started_at, f.observed_at AS last_fix_at, date_diff('second', f.observed_at, v.started_at) AS seconds_after_fix, v.fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) AS v ASOF JOIN trajectory.main.demo_input AS f ON v.entity_id = f.entity_id AND v.started_at >= f.observed_at WHERE v.episode_type = 'visit' ORDER BY v.entity_id, v.started_at;
+----
+crossing	yard	2026-01-01 00:00:30	2026-01-01 00:00:00	30	0
+stopped	yard	2026-01-01 00:00:00	2026-01-01 00:00:00	0	2
+
+# Composed catalog example: share of the observed span spent in fence visits.
+query TTTT
+WITH span AS (SELECT entity_id, date_diff('second', min(observed_at), max(observed_at)) AS observed_s FROM trajectory.main.demo_input GROUP BY entity_id), visits AS (SELECT entity_id, sum(duration_s) AS visit_s FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) WHERE episode_type = 'visit' GROUP BY entity_id) SELECT span.entity_id, span.observed_s, coalesce(visits.visit_s, 0) AS visit_s, round(coalesce(visits.visit_s, 0) / span.observed_s, 3) AS visit_share FROM span LEFT JOIN visits USING (entity_id) ORDER BY span.entity_id;
+----
+crossing	120	60.0	0.5
+stopped	600	600.0	1.0

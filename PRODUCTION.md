@@ -11,11 +11,11 @@ make verify-container
 uv run --with duckdb==2.0.0 python scripts/run_demo.py --verify --output validation/stock-duckdb.json
 ```
 
-`release-check` includes formatting, Ruff, strict mypy, pydoclint, unit tests, Haybarn SQL tests over stdio/launch/HTTP, executed VGI metadata examples and stock DuckDB 2.0.0 assertions. It then builds an sdist, builds the wheel from that archive, installs it with locked runtime dependencies in a fresh environment, and runs the shipped SQL manifest outside the source checkout. Artifacts are in `dist/`; SHA-256 hashes and executed queries are in [validation/packaged.json](validation/packaged.json).
+`release-check` includes formatting, Ruff, strict mypy, pydoclint, unit tests, Haybarn SQL tests over stdio/launch/HTTP, executed VGI metadata examples and stock DuckDB 2.0.0 assertions. It then builds an sdist, builds the wheel from that archive, installs it with locked runtime dependencies in a fresh environment, and runs the shipped SQL manifest outside the source checkout. Artifacts are in `dist/`; SHA-256 hashes and executed queries are written to `validation/packaged.json`.
 
-`verify-container` builds the image, starts it as UID 10001 with a read-only root filesystem, two CPUs and a 2 GiB memory limit, runs the complete stock DuckDB manifest over HTTP, and removes its temporary container. Evidence is in [validation/container.json](validation/container.json). The image remains available as `vgi-trajectory-worker:production-check`. It uses the locked runtime dependencies and the native libraries needed by the scientific wheels.
+`verify-container` builds the image, starts it as UID 10001 with a read-only root filesystem, two CPUs and a 2 GiB memory limit, runs the complete stock DuckDB manifest over HTTP, and removes its temporary container. Evidence is written to `validation/container.json`. The image remains available as `vgi-trajectory-worker:production-check`. It uses the locked runtime dependencies and the native libraries needed by the scientific wheels.
 
-Current local evidence: [full gates](validation/production-check.log), [stock SQL](validation/stock-duckdb.json), [Python 3.14 units](validation/python314.log). Local validation covers macOS ARM64 and Linux ARM64 containers. CI additionally defines Ubuntu/Windows SQL and installed-package jobs; those hosted CI runs have not been executed locally. No public release or deployment is created by these checks.
+The `validation/` directory holds this machine-specific evidence and is not committed (see `.gitignore`). Local validation covers macOS ARM64 and Linux ARM64 containers. CI additionally defines Ubuntu/Windows SQL and installed-package jobs; those hosted CI runs have not been executed locally. No public release or deployment is created by these checks.
 
 ## Serve
 

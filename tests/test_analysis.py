@@ -175,3 +175,17 @@ def test_geojson_null_properties_and_bounded_fence_identity(tmp_path: Path) -> N
     path.write_text(json.dumps({"type": "FeatureCollection", "features": [feature]}))
     with pytest.raises(ValueError, match="identifier limit"):
         reconstruct(crossing(), args(fences=str(path)))
+
+
+def test_catalog_links_and_composed_examples() -> None:
+    from trajectory_worker.analysis import VISIT_LAST_FIX_SQL, VISIT_SHARE_SQL, Episodes
+    from trajectory_worker.meta import SOURCE_URL
+    from trajectory_worker.worker import TrajectoryWorker
+
+    # The catalog must link to this worker's repository, not the starter template.
+    assert SOURCE_URL == "https://github.com/Query-farm/vgi-trajectory"
+    assert TrajectoryWorker.catalog.source_url == SOURCE_URL
+    # Composed examples sit within the first five examples agents are shown for episodes.
+    first_five = [entry["sql"] for entry in json.loads(Episodes.Meta.tags["vgi.example_queries"])[:5]]
+    assert VISIT_LAST_FIX_SQL in first_five
+    assert VISIT_SHARE_SQL in first_five

@@ -20,3 +20,23 @@ tasks:
 
   - name: gis_episodes
     reference_sql: "SELECT entity_id, duration_s, fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) WHERE episode_type='visit' ORDER BY entity_id"
+
+  # Composed: two episodes() runs over demo_input with different max_gap_s.
+  # Answer: stopped (its 600 s between fixes exceeds 300 s); crossing's 120 s survives.
+  - name: gis_gap_sensitivity
+    reference_sql: >-
+      SELECT d.entity_id FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) AS d
+      WHERE d.episode_type = 'visit' AND d.entity_id NOT IN (
+        SELECT entity_id FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input), max_gap_s := 300)
+        WHERE episode_type = 'visit')
+      ORDER BY d.entity_id
+
+  # Composed: trip distance from episodes() joined to fix counts from demo_input.
+  - name: gis_trip_distance_and_fixes
+    reference_sql: >-
+      WITH trips AS (SELECT entity_id, sum(distance_m) AS trip_m
+                     FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input))
+                     WHERE episode_type = 'trip' GROUP BY entity_id),
+           fixes AS (SELECT entity_id, count(*) AS fixes FROM trajectory.main.demo_input GROUP BY entity_id)
+      SELECT fixes.entity_id, coalesce(trips.trip_m, 0.0) AS trip_m, fixes.fixes
+      FROM fixes LEFT JOIN trips USING (entity_id) ORDER BY fixes.entity_id

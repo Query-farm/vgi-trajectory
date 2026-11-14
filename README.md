@@ -7,7 +7,8 @@ Independent Python VGI worker: query geospatial analysis from SQL and join the r
 Requires Python 3.13+ and [uv](https://docs.astral.sh/uv/).
 
 ```sh
-cd /Users/rusty/Development/vgi-trajectory
+git clone https://github.com/Query-farm/vgi-trajectory
+cd vgi-trajectory
 uv sync --locked
 make demo
 make verify-stock
@@ -41,7 +42,7 @@ LOAD vgi FROM query_farm;
 INSTALL spatial;
 LOAD spatial;
 ATTACH 'trajectory' (TYPE vgi,
-  LOCATION '/Users/rusty/Development/vgi-trajectory/.venv/bin/vgi-trajectory-worker');
+  LOCATION '/absolute/path/to/vgi-trajectory/.venv/bin/vgi-trajectory-worker');
 ```
 
 The following template expects your own source tables and paths:
@@ -56,14 +57,25 @@ WHERE episode_type = 'visit'
 ORDER BY entity_id, started_at;
 ```
 
+Episodes keep the caller's `entity_id`, so you can join them back to the fixes they were built from. This query runs as-is on the bundled demo data: an ASOF join finds the last recorded fix at or before each visit's entry. The `crossing` entity entered the yard 30 seconds after its last fix and has no fixes inside; the `stopped` entity's visit starts at a recorded fix.
+
+```sql
+SELECT v.entity_id, v.fence_id, v.started_at, f.observed_at AS last_fix_at,
+       date_diff('second', f.observed_at, v.started_at) AS seconds_after_fix, v.fix_count
+FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) AS v
+ASOF JOIN trajectory.main.demo_input AS f
+  ON v.entity_id = f.entity_id AND v.started_at >= f.observed_at
+WHERE v.episode_type = 'visit'
+ORDER BY v.entity_id, v.started_at;
+```
+
 WKB is an ordinary SQL BLOB with an explicit companion CRS, not an automatically transformed geometry. Use `ST_AsWKB` on input and `ST_GeomFromWKB` on output when using Spatial. Coordinates always use X/Y order. Do not join different coordinate systems without transforming them. Input IDs are retained as VARCHAR for joins. Invalid input schemas, geometries, coordinates and exceeded resource limits fail explicitly.
 
 ## Verification and provenance
 
 - Scientific fixtures and edge cases: [tests/test_analysis.py](tests/test_analysis.py).
 - Real SQL across stdio, launch and HTTP: [test/sql/gis.test](test/sql/gis.test), run by `make check` alongside the preserved SDK regression suite.
-- Stock DuckDB contract: [validation/stock-duckdb.json](validation/stock-duckdb.json).
-- Full local checks: [validation/production-check.log](validation/production-check.log); unmodified starter baseline: [validation/baseline.log](validation/baseline.log).
+- Stock DuckDB contract: the expected results in [vgi-worker.json](vgi-worker.json); `make verify-stock` writes its report to `validation/stock-duckdb.json` (local evidence, not committed).
 - Worker language: Python, pinned locally to 3.13. SDK: `vgi-python 0.51.1` with the starter's `>=0.51.1,<0.52` compatibility bound retained.
 - Starter: [Query-farm/vgi-starter-python](https://github.com/Query-farm/vgi-starter-python), commit `9cca9105474d6e0052b8e343c8ea21f3d1a7503c`, template 1.3.0.
 - Stock engine: DuckDB 2.0.0, signed VGI extension `e75482339d` from `query_farm`. The starter integration runner is separately pinned to `haybarn-unittest 2.0.0rc11`; it is not the stock DuckDB check.
@@ -74,4 +86,4 @@ Run `make release-check` to build a wheel from the source archive and verify its
 
 ## Support
 
-These are local projects; no remote repository or deployment has been created. Catalog source/support links identify the upstream starter, not a published GIS product or an upstream support commitment. Keep reports tied to the input CRS, resource limits and reproducible SQL. See [LICENSE](LICENSE) for the starter's license and dependency licenses for their terms.
+Report problems at [github.com/Query-farm/vgi-trajectory/issues](https://github.com/Query-farm/vgi-trajectory/issues). Keep reports tied to the input CRS, resource limits and reproducible SQL. See [LICENSE](LICENSE) for the starter's license and dependency licenses for their terms.
