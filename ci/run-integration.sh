@@ -93,13 +93,18 @@ esac
 
 # Stage the tests, rewriting `require vgi` into a signed INSTALL + LOAD (the
 # standalone runner links no extensions) and loading httpfs for HTTP workers.
-mkdir -p "$STAGE/test/sql"
+mkdir -p "$STAGE/test/sql" "$STAGE/secrets"
 TEST_FILES=("$REPO"/test/sql/*.test)
 if [ -n "${RECIPES_WORKER:-}" ] && [ "$HTTP" = "0" ]; then
   TEST_FILES+=("$REPO"/examples/test/*.test)
 fi
 for f in "${TEST_FILES[@]}"; do
-  awk -v http="$HTTP" '
+  awk -v http="$HTTP" -v secrets="$STAGE/secrets" '
+    BEGIN {
+      print "statement ok"; print "SET secret_directory = \047" secrets "\047;"; print ""
+      print "statement ok"; print "SET allow_persistent_secrets = false;"; print ""
+      print "query I"; print "SELECT count(*) FROM duckdb_secrets();"; print "----"; print "0"; print ""
+    }
     /^require[ \t]+vgi[ \t]*$/ {
       print "statement ok"; print "LOAD vgi;"; print ""
       if (http == 1) { print "statement ok"; print "LOAD httpfs;"; print "" }

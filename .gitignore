@@ -12,3 +12,7 @@ build/
 
 # Local execution and publication evidence (contains machine-specific paths)
 validation/
+
+*.log
+.env
+.env.*

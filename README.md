@@ -2,6 +2,8 @@
 
 Independent Python VGI worker: query geospatial analysis from SQL and join the resulting rows to your existing tables.
 
+See the [executed SQL notebook](notebooks/README.md) for a geofence visit with no recorded fixes inside, dwell and trip charts, and an experiment that turns unsupported interpolation into explicit gaps.
+
 ## Run it
 
 Requires Python 3.13+ and [uv](https://docs.astral.sh/uv/).

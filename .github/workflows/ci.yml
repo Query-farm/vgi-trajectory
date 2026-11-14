@@ -87,17 +87,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
-      - run: uv sync --locked --no-dev
-      - name: Read fail_on from vgi-lint.toml
-        id: lintcfg
-        run: python3 -c 'import tomllib; print("fail_on=" + tomllib.load(open("vgi-lint.toml", "rb")).get("fail_on", "error"))' >> "$GITHUB_OUTPUT"
-      - uses: Query-farm/vgi-lint-check@v2
-        with:
-          location: ${{ github.workspace }}/.venv/bin/vgi-trajectory-worker
-          # Set in vgi-lint.toml, so local runs and CI agree.
-          fail-on: ${{ steps.lintcfg.outputs.fail_on }}
-          # Set to false if your examples need real credentials or network access.
-          execute: true
+      - run: make lint-explain
 
   release:
     name: Stock DuckDB and installed wheel (${{ matrix.os }})

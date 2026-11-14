@@ -51,8 +51,10 @@ def run_queries(args: argparse.Namespace, root: Path) -> dict[str, Any]:
         location = command_string([str(worker.resolve())])
     engine = importlib.import_module(args.engine)
     with TemporaryDirectory(prefix="vgi-repositories-") as repositories:
-        config = {"extension_repository_directory": repositories} if args.engine == "duckdb" else {}
+        config: dict[str, Any] = {"extension_repository_directory": repositories} if args.engine == "duckdb" else {}
+        config.update(secret_directory=str(Path(repositories) / "secrets"), allow_persistent_secrets=False)
         connection = engine.connect(":memory:", config=config)
+        assert connection.execute("SELECT name FROM duckdb_secrets()").fetchall() == []
         try:
             if args.engine == "duckdb":
                 connection.execute("SET allow_extension_repositories='allowed'")

@@ -3,7 +3,7 @@
 
 HAYBARN_VERSION ?= 2.0.0rc11
 # vgi-lint is deliberately not pinned: the gate tracks the current quality bar.
-VGI_LINT        := uvx --prerelease=allow --from 'vgi-lint-check>=2,<3' vgi-lint lint
+VGI_LINT        := uvx --prerelease=allow --from 'vgi-lint-check>=2,<3' python test/lint_isolated.py lint
 LINT_ARGS       ?=
 WORKER          := $(CURDIR)/.venv/bin/vgi-trajectory-worker
 TOOLS           := $(CURDIR)/.tools

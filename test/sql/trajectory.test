@@ -113,7 +113,7 @@ SELECT count(*) FROM trajectory.examples.fetch_items('{TRAJECTORY_MOCK_API_AUTH}
 401
 
 statement ok
-CREATE SECRET trajectory_api_test (TYPE trajectory_api, TOKEN 'test-token');
+CREATE TEMPORARY SECRET trajectory_api_test (TYPE trajectory_api, TOKEN 'test-token');
 
 query I
 SELECT count(*) FROM trajectory.examples.fetch_items('{TRAJECTORY_MOCK_API_AUTH}', page_size := 25);
