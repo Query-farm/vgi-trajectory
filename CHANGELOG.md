@@ -12,6 +12,7 @@
   greeting, sequence and items-API tasks are gone.
 - Removed the starter's mock REST API, SDK recipe examples (`examples/`) and the
   paginated-roster notebook; notebook 01 now writes its fixes as inline `VALUES`.
+- The catalog comment is now a short plain-text description of what the worker covers; the detailed analysis notes remain in the catalog's `vgi.doc_md` and `vgi.doc_llm` documentation.
 
 ## 0.1.0 (2026-11-14)
 

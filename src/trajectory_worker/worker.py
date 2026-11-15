@@ -31,6 +31,14 @@ from .meta import (
     keywords_array,
 )
 
+# One-paragraph catalog description shown in directories (VGI001); the long
+# analysis guidance lives in the vgi.doc_md / vgi.doc_llm tags.
+CATALOG_COMMENT = (
+    "GPS track analysis: turns timestamped position fixes into geofence visits, trips and explicit "
+    "observation gaps, interpolating crossings between fixes but never inferring visits across long gaps, "
+    "implausible speeds or poor-accuracy fixes. Sample fixes and fences are included."
+)
+
 
 def _stamp_example_queries(functions: list[type[Any]]) -> list[dict[str, str]]:
     """Publish each function's examples as ``vgi.example_queries`` (with descriptions).
@@ -58,7 +66,7 @@ class TrajectoryWorker(Worker):
 
     catalog = Catalog(
         name=CATALOG_NAME,
-        comment=GIS_DESCRIPTION,
+        comment=CATALOG_COMMENT,
         source_url=SOURCE_URL,
         tags={
             **CATALOG_TAGS,
