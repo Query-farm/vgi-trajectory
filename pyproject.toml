@@ -1,6 +1,6 @@
 [project]
 name = "vgi-trajectory-worker"
-version = "0.1.0"
+version = "0.2.0"
 description = "Python GIS trajectory analysis exposed as VGI SQL functions."
 readme = "README.md"
 license = "0BSD"
@@ -20,8 +20,7 @@ vgi-trajectory-worker = "trajectory_worker.worker:main"
 
 [dependency-groups]
 dev = [
-    # The pushdown recipe evaluates predicates locally; a worker that uses filter
-    # pushdown must add the `haybarn` extra to its own dependencies.
+    # `scripts/run_demo.py --engine haybarn` runs the SQL contract in Haybarn.
     "vgi-python[haybarn]>=0.51.1,<0.52",
     "pytest>=8.4",
     "mypy>=1.18",
@@ -52,7 +51,7 @@ ignore = ["D203", "D213", "RUF012"]
 [tool.mypy]
 strict = true
 python_version = "3.13"
-files = ["src", "tests", "examples", "scripts/run_demo.py", "scripts/verify_package.py", "scripts/verify_container.py"]
+files = ["src", "tests", "scripts/run_demo.py", "scripts/verify_package.py", "scripts/verify_container.py"]
 
 [[tool.mypy.overrides]]
 module = ["vgi.*", "vgi_rpc.*"]

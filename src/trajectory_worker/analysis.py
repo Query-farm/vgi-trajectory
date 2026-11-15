@@ -475,23 +475,23 @@ class Drain(ArrowSerializableDataclass):
 
 EPISODE_SQL = (
     "SELECT entity_id, duration_s, fix_count FROM trajectory.main.episodes((SELECT * "
-    "FROM trajectory.main.demo_input)) WHERE episode_type='visit' ORDER BY entity_id"
+    "FROM trajectory.main.sample_fixes)) WHERE episode_type='visit' ORDER BY entity_id"
 )
 
-# Composed examples: episodes() output joined back to the demo_input fixes it was built from.
+# Composed examples: episodes() output joined back to the sample_fixes rows it was built from.
 VISIT_LAST_FIX_SQL = (
     "SELECT v.entity_id, v.fence_id, v.started_at, f.observed_at AS last_fix_at, "
     "date_diff('second', f.observed_at, v.started_at) AS seconds_after_fix, v.fix_count "
-    "FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) AS v "
-    "ASOF JOIN trajectory.main.demo_input AS f "
+    "FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)) AS v "
+    "ASOF JOIN trajectory.main.sample_fixes AS f "
     "ON v.entity_id = f.entity_id AND v.started_at >= f.observed_at "
     "WHERE v.episode_type = 'visit' ORDER BY v.entity_id, v.started_at"
 )
 VISIT_SHARE_SQL = (
     "WITH span AS (SELECT entity_id, date_diff('second', min(observed_at), max(observed_at)) AS observed_s "
-    "FROM trajectory.main.demo_input GROUP BY entity_id), "
+    "FROM trajectory.main.sample_fixes GROUP BY entity_id), "
     "visits AS (SELECT entity_id, sum(duration_s) AS visit_s "
-    "FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) "
+    "FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)) "
     "WHERE episode_type = 'visit' GROUP BY entity_id) "
     "SELECT span.entity_id, span.observed_s, coalesce(visits.visit_s, 0) AS visit_s, "
     "round(coalesce(visits.visit_s, 0) / span.observed_s, 3) AS visit_share "
@@ -525,13 +525,13 @@ class Episodes(TableBufferingFunction[EpisodeArgs, Drain]):
             *example(EPISODE_SQL, "Recover a visit even though neither recorded fix is inside the fence"),
             *example(
                 VISIT_LAST_FIX_SQL,
-                "ASOF-join each reconstructed visit back to the last demo_input fix at or before its entry: "
+                "ASOF-join each reconstructed visit back to the last sample_fixes fix at or before its entry: "
                 "the crossing entity entered the yard 30 seconds after its last fix and has zero fixes inside, "
                 "while the stopped entity's visit starts at a recorded fix",
             ),
             *example(
                 VISIT_SHARE_SQL,
-                "Share of each entity's observed span (first to last demo_input fix) spent in fence visits: "
+                "Share of each entity's observed span (first to last sample_fixes fix) spent in fence visits: "
                 "crossing spends 60 of 120 seconds in the yard (0.5), stopped all 600 seconds (1.0)",
             ),
         ]
@@ -597,7 +597,7 @@ class Episodes(TableBufferingFunction[EpisodeArgs, Drain]):
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)
-class DemoArgs:
+class SampleFixesArgs:
     """No arguments: use two known synthetic tracks."""
 
 
@@ -608,12 +608,12 @@ class Cursor(ArrowSerializableDataclass):
     done: bool = False
 
 
-DEMO_SQL = "SELECT entity_id, count(*) FROM trajectory.main.demo_input GROUP BY entity_id ORDER BY entity_id"
+SAMPLE_FIXES_SQL = "SELECT entity_id, count(*) FROM trajectory.main.sample_fixes GROUP BY entity_id ORDER BY entity_id"
 
 
 @init_single_worker
 @bind_fixed_schema
-class DemoInput(TableFunctionGenerator[DemoArgs, Cursor]):
+class SampleFixes(TableFunctionGenerator[SampleFixesArgs, Cursor]):
     """Return one between-fix crossing and one observed stationary visit."""
 
     FIXED_SCHEMA: ClassVar[pa.Schema] = INPUT
@@ -621,26 +621,26 @@ class DemoInput(TableFunctionGenerator[DemoArgs, Cursor]):
     class Meta:
         """Synthetic trajectory metadata."""
 
-        name = "demo_input"
+        name = "sample_fixes"
         description = "Two synthetic GPS tracks demonstrating a between-fix crossing and a stop"
         tags = metadata(
-            "Demo GPS fixes",
+            "Sample GPS fixes",
             "Four fixes in EPSG:32618 at UTC times. The crossing entity moves from 10 m west to"
             " 10 m east of a 20 m wide fence in 120 seconds; neither fix is inside. The stopped"
             " entity remains inside for 600 seconds. Use with the bundled fences.json.",
             INPUT,
-            DEMO_SQL,
+            SAMPLE_FIXES_SQL,
             [["crossing", 2], ["stopped", 2]],
         )
-        examples = example(DEMO_SQL, "Count observations per synthetic entity")
+        examples = example(SAMPLE_FIXES_SQL, "Count observations per synthetic entity")
 
     @classmethod
-    def initial_state(cls, params: ProcessParams[DemoArgs]) -> Cursor:
+    def initial_state(cls, params: ProcessParams[SampleFixesArgs]) -> Cursor:
         """Start before the fixture rows."""
         return Cursor()
 
     @classmethod
-    def process(cls, params: ProcessParams[DemoArgs], state: Cursor, out: OutputCollector) -> None:
+    def process(cls, params: ProcessParams[SampleFixesArgs], state: Cursor, out: OutputCollector) -> None:
         """Emit both tracks once."""
         if state.done:
             out.finish()
@@ -659,17 +659,17 @@ class DemoInput(TableFunctionGenerator[DemoArgs, Cursor]):
         state.done = True
 
 
-GIS_FUNCTIONS: list[type[Any]] = [DemoInput, Episodes]
+GIS_FUNCTIONS: list[type[Any]] = [SampleFixes, Episodes]
 
 GIS_TABLES = [
     Table(
-        name="demo_input",
-        function=DemoInput,
-        comment=DemoInput.Meta.description,
+        name="sample_fixes",
+        function=SampleFixes,
+        comment=SampleFixes.Meta.description,
         constraints=(
             constraint_record(
                 ["main"],
-                "demo_input",
+                "sample_fixes",
                 "id_not_null",
                 "NOT_NULL",
                 [["entity_id"]],
@@ -678,8 +678,8 @@ GIS_TABLES = [
             ),
             constraint_record(
                 ["main"],
-                "demo_input",
-                "demo_pk",
+                "sample_fixes",
+                "sample_fixes_pk",
                 "PRIMARY_KEY",
                 [["entity_id"], ["observed_at"]],
                 enforcement="ENFORCED",
@@ -687,12 +687,12 @@ GIS_TABLES = [
             ),
         ),
         tags={
-            **DemoInput.Meta.tags,
+            **SampleFixes.Meta.tags,
             "domain": "geospatial",
             "vgi.example_queries": json.dumps(
-                [{"description": ex.description, "sql": ex.sql} for ex in DemoInput.Meta.examples]
+                [{"description": ex.description, "sql": ex.sql} for ex in SampleFixes.Meta.examples]
             ),
         },
-        column_comments={f.name: (f.metadata or {}).get(b"comment", b"").decode() for f in DemoInput.FIXED_SCHEMA},
+        column_comments={f.name: (f.metadata or {}).get(b"comment", b"").decode() for f in SampleFixes.FIXED_SCHEMA},
     )
 ]

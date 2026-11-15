@@ -2,41 +2,28 @@
 # `vgi-lint lint --ai` runs an agent on each prompt and grades it with check_sql.
 # See https://github.com/Query-farm/vgi-lint-check (VGI920).
 tasks:
-  - name: formal_greeting
-    reference_sql: SELECT trajectory.examples.greet('Grace', 'formal') AS greeting
-  - name: sum_of_squares
-    reference_sql: SELECT sum(squared) AS total FROM trajectory.examples.sequence_table(10)
-  - name: stepped_sequence
-    reference_sql: SELECT n FROM trajectory.examples.sequence_table(4, step := 5) ORDER BY n
-  # Reads the public demo API (https://vgi-starter-api.query-farm.services/v1).
-  - name: items_per_category
-    check_sql: >-
-      SELECT count(*) = 3 AND sum(items) = 25
-      FROM (SELECT category, count(*) AS items
-            FROM trajectory.examples.fetch_items('https://vgi-starter-api.query-farm.services/v1') GROUP BY category)
-
-  - name: gis_demo_input
-    reference_sql: "SELECT entity_id, count(*) FROM trajectory.main.demo_input GROUP BY entity_id ORDER BY entity_id"
+  - name: gis_sample_fixes
+    reference_sql: "SELECT entity_id, count(*) FROM trajectory.main.sample_fixes GROUP BY entity_id ORDER BY entity_id"
 
   - name: gis_episodes
-    reference_sql: "SELECT entity_id, duration_s, fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) WHERE episode_type='visit' ORDER BY entity_id"
+    reference_sql: "SELECT entity_id, duration_s, fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)) WHERE episode_type='visit' ORDER BY entity_id"
 
-  # Composed: two episodes() runs over demo_input with different max_gap_s.
+  # Composed: two episodes() runs over sample_fixes with different max_gap_s.
   # Answer: stopped (its 600 s between fixes exceeds 300 s); crossing's 120 s survives.
   - name: gis_gap_sensitivity
     reference_sql: >-
-      SELECT d.entity_id FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) AS d
+      SELECT d.entity_id FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)) AS d
       WHERE d.episode_type = 'visit' AND d.entity_id NOT IN (
-        SELECT entity_id FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input), max_gap_s := 300)
+        SELECT entity_id FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes), max_gap_s := 300)
         WHERE episode_type = 'visit')
       ORDER BY d.entity_id
 
-  # Composed: trip distance from episodes() joined to fix counts from demo_input.
+  # Composed: trip distance from episodes() joined to fix counts from sample_fixes.
   - name: gis_trip_distance_and_fixes
     reference_sql: >-
       WITH trips AS (SELECT entity_id, sum(distance_m) AS trip_m
-                     FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input))
+                     FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes))
                      WHERE episode_type = 'trip' GROUP BY entity_id),
-           fixes AS (SELECT entity_id, count(*) AS fixes FROM trajectory.main.demo_input GROUP BY entity_id)
+           fixes AS (SELECT entity_id, count(*) AS fixes FROM trajectory.main.sample_fixes GROUP BY entity_id)
       SELECT fixes.entity_id, coalesce(trips.trip_m, 0.0) AS trip_m, fixes.fixes
       FROM fixes LEFT JOIN trips USING (entity_id) ORDER BY fixes.entity_id

@@ -6,8 +6,8 @@
   ],
   "checks": [
     {
-      "name": "Demo GPS fixes on bundled synthetic data",
-      "sql": "SELECT entity_id, count(*) FROM trajectory.main.demo_input GROUP BY entity_id ORDER BY entity_id",
+      "name": "Sample GPS fixes on bundled synthetic data",
+      "sql": "SELECT entity_id, count(*) FROM trajectory.main.sample_fixes GROUP BY entity_id ORDER BY entity_id",
       "rows": [
         [
           "crossing",
@@ -21,7 +21,7 @@
     },
     {
       "name": "Trajectory visit and trip reconstruction on bundled synthetic data",
-      "sql": "SELECT entity_id, duration_s, fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) WHERE episode_type='visit' ORDER BY entity_id",
+      "sql": "SELECT entity_id, duration_s, fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)) WHERE episode_type='visit' ORDER BY entity_id",
       "rows": [
         [
           "crossing",
@@ -37,7 +37,7 @@
     },
     {
       "name": "Empty trajectory relation",
-      "sql": "SELECT count(*) FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input WHERE false))",
+      "sql": "SELECT count(*) FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes WHERE false))",
       "rows": [
         [
           0
@@ -58,7 +58,7 @@
     },
     {
       "name": "Input and output both span batches",
-      "sql": "SELECT count(*), count(*) FILTER (WHERE episode_type='visit'), sum(fix_count) FILTER (WHERE episode_type='visit')\nFROM trajectory.main.episodes((SELECT i::VARCHAR entity_id, observed_at, x, y\nFROM trajectory.main.demo_input CROSS JOIN range(2501) t(i) WHERE entity_id='crossing' ORDER BY observed_at DESC, i))",
+      "sql": "SELECT count(*), count(*) FILTER (WHERE episode_type='visit'), sum(fix_count) FILTER (WHERE episode_type='visit')\nFROM trajectory.main.episodes((SELECT i::VARCHAR entity_id, observed_at, x, y\nFROM trajectory.main.sample_fixes CROSS JOIN range(2501) t(i) WHERE entity_id='crossing' ORDER BY observed_at DESC, i))",
       "rows": [
         [
           7503,
@@ -69,7 +69,7 @@
     },
     {
       "name": "Join inferred visits to fleet records",
-      "sql": "WITH fleet(entity_id, vehicle) AS (VALUES ('crossing', 'Van 7'), ('stopped', 'Van 9')),\nepisodes AS (SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)))\nSELECT f.vehicle, e.duration_s, e.fix_count, e.interpolated_boundaries\nFROM episodes e JOIN fleet f USING(entity_id) WHERE e.episode_type='visit' ORDER BY f.vehicle",
+      "sql": "WITH fleet(entity_id, vehicle) AS (VALUES ('crossing', 'Van 7'), ('stopped', 'Van 9')),\nepisodes AS (SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)))\nSELECT f.vehicle, e.duration_s, e.fix_count, e.interpolated_boundaries\nFROM episodes e JOIN fleet f USING(entity_id) WHERE e.episode_type='visit' ORDER BY f.vehicle",
       "rows": [
         [
           "Van 7",

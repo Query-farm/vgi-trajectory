@@ -6,23 +6,23 @@ require-env TRAJECTORY_WORKER
 statement ok
 ATTACH 'trajectory' (TYPE vgi, LOCATION '{TRAJECTORY_WORKER}');
 
-# Demo GPS fixes on bundled synthetic data
+# Sample GPS fixes on bundled synthetic data
 query TT
-SELECT entity_id, count(*) FROM trajectory.main.demo_input GROUP BY entity_id ORDER BY entity_id;
+SELECT entity_id, count(*) FROM trajectory.main.sample_fixes GROUP BY entity_id ORDER BY entity_id;
 ----
 crossing	2
 stopped	2
 
 # Trajectory visit and trip reconstruction on bundled synthetic data
 query TTT
-SELECT entity_id, duration_s, fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) WHERE episode_type='visit' ORDER BY entity_id;
+SELECT entity_id, duration_s, fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)) WHERE episode_type='visit' ORDER BY entity_id;
 ----
 crossing	60.0	0
 stopped	600.0	2
 
 # Empty trajectory relation
 query T
-SELECT count(*) FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input WHERE false));
+SELECT count(*) FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes WHERE false));
 ----
 0
 
@@ -38,14 +38,14 @@ many	visit	5000.0	5001
 query TTT
 SELECT count(*), count(*) FILTER (WHERE episode_type='visit'), sum(fix_count) FILTER (WHERE episode_type='visit')
 FROM trajectory.main.episodes((SELECT i::VARCHAR entity_id, observed_at, x, y
-FROM trajectory.main.demo_input CROSS JOIN range(2501) t(i) WHERE entity_id='crossing' ORDER BY observed_at DESC, i));
+FROM trajectory.main.sample_fixes CROSS JOIN range(2501) t(i) WHERE entity_id='crossing' ORDER BY observed_at DESC, i));
 ----
 7503	2501	0
 
 # Join inferred visits to fleet records
 query TTTT
 WITH fleet(entity_id, vehicle) AS (VALUES ('crossing', 'Van 7'), ('stopped', 'Van 9')),
-episodes AS (SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)))
+episodes AS (SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)))
 SELECT f.vehicle, e.duration_s, e.fix_count, e.interpolated_boundaries
 FROM episodes e JOIN fleet f USING(entity_id) WHERE e.episode_type='visit' ORDER BY f.vehicle;
 ----
@@ -59,51 +59,51 @@ Missing input columns
 
 # Constant controls must not accept infinity.
 statement error
-SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input), max_gap_s := 'Infinity'::DOUBLE);
+SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes), max_gap_s := 'Infinity'::DOUBLE);
 ----
 finite
 
 statement error
-SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input), max_points := 2);
+SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes), max_points := 2);
 ----
 max_points
 
 statement error
-SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input), max_input_bytes := 1);
+SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes), max_input_bytes := 1);
 ----
 max_input_bytes
 
 statement error
-SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input), max_episodes := 1);
+SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes), max_episodes := 1);
 ----
 max_episodes
 
 statement error
-SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input), max_path_vertices := 2);
+SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes), max_path_vertices := 2);
 ----
 max_path_vertices
 
 statement error
-SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input), max_segment_splits := 2);
+SELECT * FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes), max_segment_splits := 2);
 ----
 max_segment_splits
 
 # Failed invocations must not contaminate the next reconstruction.
 query II
-SELECT count(*), sum(fix_count) FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) WHERE episode_type='visit';
+SELECT count(*), sum(fix_count) FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)) WHERE episode_type='visit';
 ----
 2	2
 
 # Composed catalog example: ASOF-join each visit back to the last fix before entry.
 query TTTTTT
-SELECT v.entity_id, v.fence_id, v.started_at, f.observed_at AS last_fix_at, date_diff('second', f.observed_at, v.started_at) AS seconds_after_fix, v.fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) AS v ASOF JOIN trajectory.main.demo_input AS f ON v.entity_id = f.entity_id AND v.started_at >= f.observed_at WHERE v.episode_type = 'visit' ORDER BY v.entity_id, v.started_at;
+SELECT v.entity_id, v.fence_id, v.started_at, f.observed_at AS last_fix_at, date_diff('second', f.observed_at, v.started_at) AS seconds_after_fix, v.fix_count FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)) AS v ASOF JOIN trajectory.main.sample_fixes AS f ON v.entity_id = f.entity_id AND v.started_at >= f.observed_at WHERE v.episode_type = 'visit' ORDER BY v.entity_id, v.started_at;
 ----
 crossing	yard	2026-01-01 00:00:30	2026-01-01 00:00:00	30	0
 stopped	yard	2026-01-01 00:00:00	2026-01-01 00:00:00	0	2
 
 # Composed catalog example: share of the observed span spent in fence visits.
 query TTTT
-WITH span AS (SELECT entity_id, date_diff('second', min(observed_at), max(observed_at)) AS observed_s FROM trajectory.main.demo_input GROUP BY entity_id), visits AS (SELECT entity_id, sum(duration_s) AS visit_s FROM trajectory.main.episodes((SELECT * FROM trajectory.main.demo_input)) WHERE episode_type = 'visit' GROUP BY entity_id) SELECT span.entity_id, span.observed_s, coalesce(visits.visit_s, 0) AS visit_s, round(coalesce(visits.visit_s, 0) / span.observed_s, 3) AS visit_share FROM span LEFT JOIN visits USING (entity_id) ORDER BY span.entity_id;
+WITH span AS (SELECT entity_id, date_diff('second', min(observed_at), max(observed_at)) AS observed_s FROM trajectory.main.sample_fixes GROUP BY entity_id), visits AS (SELECT entity_id, sum(duration_s) AS visit_s FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes)) WHERE episode_type = 'visit' GROUP BY entity_id) SELECT span.entity_id, span.observed_s, coalesce(visits.visit_s, 0) AS visit_s, round(coalesce(visits.visit_s, 0) / span.observed_s, 3) AS visit_share FROM span LEFT JOIN visits USING (entity_id) ORDER BY span.entity_id;
 ----
 crossing	120	60.0	0.5
 stopped	600	600.0	1.0

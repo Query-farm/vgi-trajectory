@@ -1,7 +1,7 @@
 """Assemble the functions into a catalog and run the worker.
 
-To add a function: write it (see ``greet.py`` / ``sequence.py`` /
-``fetch_items.py``), then add the class to ``FUNCTIONS`` below.
+To add a function: write it (see ``analysis.py``), then add the class to
+``GIS_FUNCTIONS``.
 
 Run it:
 
@@ -23,20 +23,13 @@ from vgi import Worker
 from vgi.catalog import Catalog, Schema
 
 from .analysis import GIS_DESCRIPTION, GIS_FUNCTIONS, GIS_TABLES
-from .fetch_items import API_SECRET_TYPE, FetchItems
-from .greet import Greet, GreetWithStyle
 from .meta import (
     CATALOG_NAME,
     CATALOG_TAGS,
     SCHEMA_CATEGORIES,
-    SCHEMA_DOC_LLM,
-    SCHEMA_DOC_MD,
     SOURCE_URL,
     keywords_array,
 )
-from .sequence import SequenceTable
-
-FUNCTIONS: list[type[Any]] = [Greet, GreetWithStyle, SequenceTable, FetchItems]
 
 
 def _stamp_example_queries(functions: list[type[Any]]) -> list[dict[str, str]]:
@@ -57,7 +50,6 @@ def _stamp_example_queries(functions: list[type[Any]]) -> list[dict[str, str]]:
     return [entry for entries in by_name.values() for entry in entries]
 
 
-_ALL_EXAMPLES = _stamp_example_queries(FUNCTIONS)
 _GIS_EXAMPLES = _stamp_example_queries(GIS_FUNCTIONS)
 
 
@@ -74,8 +66,7 @@ class TrajectoryWorker(Worker):
             "vgi.doc_md": "## GIS analysis\n\n" + GIS_DESCRIPTION + "\n\n### SQL workflow\n\n"
             "Pass query results to the main schema functions, retaining IDs for joins. "
             "Use bundled synthetic data to try the executable examples without network access. "
-            "CRS, coverage, inference limits and resource bounds are explicit function parameters. "
-            "The examples schema preserves the SDK regression recipes.",
+            "CRS, coverage, inference limits and resource bounds are explicit function parameters.",
             "vgi.subtitle": "Reconstruct visits, dwell and trips from GPS observations.",
         },
         schemas=[
@@ -92,30 +83,13 @@ class TrajectoryWorker(Worker):
                     "vgi.doc_md": "## GIS analysis\n\n" + GIS_DESCRIPTION + "\n\n### SQL workflow\n\n"
                     "Pass query results to the main schema functions, retaining IDs for joins. "
                     "Use bundled synthetic data to try the executable examples without network access. "
-                    "CRS, coverage, inference limits and resource bounds are explicit function parameters. "
-                    "The examples schema preserves the SDK regression recipes.",
-                    "vgi.categories": json.dumps([c for c in SCHEMA_CATEGORIES if c["name"] == "gis"]),
+                    "CRS, coverage, inference limits and resource bounds are explicit function parameters.",
+                    "vgi.categories": json.dumps(SCHEMA_CATEGORIES),
                     "vgi.example_queries": json.dumps(_GIS_EXAMPLES),
-                },
-            ),
-            Schema(
-                path=["examples"],
-                comment=SCHEMA_DOC_MD,
-                functions=FUNCTIONS,
-                tags={
-                    "vgi.title": "Trajectory Functions",
-                    "domain": "examples",
-                    "vgi.keywords": keywords_array("greeting, sequence, generator, rest api, pagination"),
-                    "vgi.doc_llm": SCHEMA_DOC_LLM,
-                    "vgi.doc_md": SCHEMA_DOC_MD,
-                    "vgi.categories": json.dumps([c for c in SCHEMA_CATEGORIES if c["name"] != "gis"]),
-                    "vgi.example_queries": json.dumps(_ALL_EXAMPLES),
                 },
             ),
         ],
     )
-
-    secret_types = [API_SECRET_TYPE]
 
 
 def main() -> None:

@@ -1,9 +1,8 @@
-"""Keep the published metadata checker independent of saved regression-example secrets."""
+"""Run the published metadata checker with an empty, non-persistent DuckDB secret store."""
 
 from __future__ import annotations
 
 import importlib
-import os
 import tempfile
 from typing import Any
 
@@ -11,7 +10,6 @@ from typing import Any
 def main() -> None:
     engine = importlib.import_module("haybarn")
     original_connect = engine.connect
-    os.environ.pop("TRAJECTORY_API_TOKEN", None)
     try:
         with tempfile.TemporaryDirectory(prefix="trajectory-lint-secrets-") as directory:
 

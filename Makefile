@@ -24,12 +24,12 @@ tools: ## Install the pinned SQL test runner into .tools
 	@test -x $(HAYBARN_UNITTEST) || { uv venv -q $(TOOLS) && uv pip install -q -p $(TOOLS) haybarn-unittest==$(HAYBARN_VERSION); }
 
 fmt: ## Format the code
-	uv run ruff format src tests test examples scripts/run_demo.py scripts/verify_package.py scripts/verify_container.py
-	uv run ruff check --fix src tests test examples scripts/run_demo.py scripts/verify_package.py scripts/verify_container.py
+	uv run ruff format src tests test scripts/run_demo.py scripts/verify_package.py scripts/verify_container.py
+	uv run ruff check --fix src tests test scripts/run_demo.py scripts/verify_package.py scripts/verify_container.py
 
 lint: build ## Static checks: ruff, mypy, pydoclint
-	uv run ruff format --check src tests test examples scripts/run_demo.py scripts/verify_package.py scripts/verify_container.py
-	uv run ruff check src tests test examples scripts/run_demo.py scripts/verify_package.py scripts/verify_container.py
+	uv run ruff format --check src tests test scripts/run_demo.py scripts/verify_package.py scripts/verify_container.py
+	uv run ruff check src tests test scripts/run_demo.py scripts/verify_package.py scripts/verify_container.py
 	uv run mypy
 	uvx pydoclint --config=pyproject.toml src
 
@@ -37,7 +37,7 @@ test-unit: build ## Unit tests (pytest)
 	uv run pytest -q
 
 test-sql: build tools ## SQL tests through DuckDB: make test-sql TRANSPORT=stdio|launch|http
-	WORKER=$(WORKER) RECIPES_WORKER="$(CURDIR)/.venv/bin/python $(CURDIR)/examples/run.py" HAYBARN_UNITTEST=$(HAYBARN_UNITTEST) TRANSPORT=$(TRANSPORT) PYTHON="uv run --no-project python" ci/run-integration.sh
+	WORKER=$(WORKER) HAYBARN_UNITTEST=$(HAYBARN_UNITTEST) TRANSPORT=$(TRANSPORT) ci/run-integration.sh
 
 test-sql-all: ## SQL tests over every transport
 	$(MAKE) test-sql TRANSPORT=stdio
@@ -61,7 +61,7 @@ run-http: build ## Serve over HTTP on port 8000
 	$(WORKER) --http --host 127.0.0.1 --port 8000
 
 debug: build tools ## Run one query against the worker with debug logging on stderr
-	@printf "LOAD vgi;\nATTACH 'trajectory' (TYPE vgi, LOCATION '$(WORKER) --debug');\nSELECT trajectory.examples.greet('debug');\n" \
+	@printf "LOAD vgi;\nATTACH 'trajectory' (TYPE vgi, LOCATION '$(WORKER) --debug');\nSELECT entity_id, episode_type, duration_s FROM trajectory.main.episodes((SELECT * FROM trajectory.main.sample_fixes));\n" \
 	  | uvx --from haybarn-cli==$(HAYBARN_VERSION) haybarn -no-agent
 
 template-diff: ## Show upstream template changes since this project was created

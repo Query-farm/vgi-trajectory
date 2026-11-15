@@ -28,9 +28,6 @@ SCHEMA_CATEGORIES = [
         "title": "GIS Analysis",
         "description": "Spatial analysis over query results and geospatial assets.",
     },
-    {"name": "text", "title": "Text", "description": "Functions that build or transform strings."},
-    {"name": "generators", "title": "Generators", "description": "Table functions that generate rows."},
-    {"name": "api", "title": "REST APIs", "description": "Table functions that read from HTTP APIs."},
 ]
 
 
@@ -58,99 +55,57 @@ def column(name: str, type_: pa.DataType, comment: str, *, nullable: bool = True
 
 
 CATALOG_DOC_LLM = (
-    "An example VGI worker generated from the Query.Farm starter template. It shows the three "
-    "shapes most workers need: a vectorized scalar function with an overload, a deterministic "
-    "table function with a named default argument, and a table function that pages through a REST "
-    "API with retries and an optional bearer token taken from a DuckDB secret or an environment "
-    "variable. Replace them with your own functions; keep the metadata complete so agents can "
-    "discover and call them."
+    "Reconstruct visits, dwell, trips and observation gaps from timestamped GPS rows. "
+    "`main.episodes((SELECT entity_id, observed_at, x, y FROM fixes), fences := ...)` buffers the "
+    "input, sorts each entity by UTC time, intersects the piecewise-linear track with geofence "
+    "polygons and returns visit, trip and gap episodes with inferred entry/exit times, dwell "
+    "seconds, distance, fix counts, censoring flags and WKB paths. `main.sample_fixes` is a table "
+    "of four synthetic fixes that works with the bundled default fence for offline examples. "
+    "CRS, gap, speed, accuracy and resource limits are explicit named arguments."
 )
 
 CATALOG_DOC_MD = (
     "# VGI trajectory worker\n\n"
-    "**An example [VGI](https://query.farm/vgi) worker that brings custom functions into DuckDB "
-    "SQL.** It was generated from the Query.Farm starter template and is meant to be renamed and "
-    "rewritten: every function here demonstrates one pattern you will reuse, from vectorized "
-    "scalars and streaming table functions to a REST API reader that retries politely and reads "
-    "a bearer token from a DuckDB secret or the environment.\n\n"
+    "**Turn GPS fixes into geofence visits, trips and gaps from DuckDB SQL.** The "
+    "[VGI](https://query.farm/vgi) worker interpolates straight segments between fixes, so it "
+    "finds visits even when no recorded fix falls inside a fence, and it marks long gaps, "
+    "implausible speeds and poor-accuracy fixes as unknown movement instead of inventing visits.\n\n"
     "The worker speaks Apache Arrow to DuckDB over stdin/stdout, a Unix socket, or HTTP, so the "
     "same code runs as a local subprocess or a hosted service. See the "
     "[VGI documentation](https://query.farm/vgi/docs/) to learn more."
 )
 
-SCHEMA_DOC_LLM = (
-    "The `examples` schema holds the starter template's example functions, one per common worker "
-    "pattern. `greet(name)` and `greet(name, style)` are vectorized scalars: use them inside a "
-    "projection or predicate, one result per row; `style` is a constant that must be 'casual' or "
-    "'formal'. `sequence_table(count, step := 1)` is a deterministic table function that returns "
-    "`count` rows of `(n, squared)`; use it for demos, tests, and as a template for generators. "
-    "`fetch_items(base_url, page_size := 100)` reads every item from a paginated JSON REST API as "
-    "`(id, name, category, price)` rows, streaming one page per batch, retrying rate-limited "
-    "requests, and authenticating with a `trajectory_api` DuckDB secret or the `TRAJECTORY_API_TOKEN` "
-    "environment variable. Scalars cannot take named arguments; table functions can."
-)
-
-SCHEMA_DOC_MD = (
-    "## examples\n\n"
-    "The starter template's example functions, one per common worker pattern.\n\n"
-    "- **Scalars** answer one question per row and slot into a projection or predicate.\n"
-    "- **Table functions** return sets of rows, streamed to DuckDB in Arrow batches.\n"
-    "- **REST readers** page through an HTTP API and authenticate with a DuckDB secret."
-)
-
 AGENT_TEST_TASKS = [
-    {"name": "formal_greeting", "prompt": "Using the trajectory worker, greet the name 'Grace' formally."},
     {
-        "name": "sum_of_squares",
-        "prompt": "Using the trajectory worker, what is the sum of the squared column for the first 10 rows "
-        "of the sequence with the default step?",
+        "name": "gis_sample_fixes",
+        "prompt": "Count observations per synthetic entity. Use the bundled synthetic inputs and "
+        "return the columns and ordering shown in its catalog example.",
     },
     {
-        "name": "stepped_sequence",
-        "prompt": "List the n values of a 4-row sequence that steps by 5, in ascending order.",
+        "name": "gis_episodes",
+        "prompt": "Recover a visit even though neither recorded fix is inside the fence. Use the "
+        "bundled synthetic inputs and return the columns and ordering shown in its "
+        "catalog example.",
     },
     {
-        "name": "items_per_category",
-        "prompt": (
-            "The items API is running at https://vgi-starter-api.query-farm.services/v1. "
-            "How many items does it have in each category?"
-        ),
+        "name": "gis_gap_sensitivity",
+        "prompt": "Using the trajectory worker's bundled sample GPS fixes and its default fences, which "
+        "entities have a fence visit with the default settings but no fence visit when the maximum "
+        "interpolation gap is tightened to 300 seconds? Return one VARCHAR column entity_id, ordered "
+        "by entity_id.",
+    },
+    {
+        "name": "gis_trip_distance_and_fixes",
+        "prompt": "Using the trajectory worker's bundled sample GPS fixes and its default fences, report for "
+        "every sample entity the total metres travelled in reconstructed trip episodes (0.0 when it has "
+        "no trips) alongside how many GPS fixes it recorded. Return entity_id (VARCHAR), trip_m (DOUBLE) "
+        "and fixes (BIGINT), ordered by entity_id.",
     },
 ]
 
-AGENT_TEST_TASKS.extend(
-    [
-        {
-            "name": "gis_demo_input",
-            "prompt": "Count observations per synthetic entity. Use the bundled synthetic inputs and "
-            "return the columns and ordering shown in its catalog example.",
-        },
-        {
-            "name": "gis_episodes",
-            "prompt": "Recover a visit even though neither recorded fix is inside the fence. Use the "
-            "bundled synthetic inputs and return the columns and ordering shown in its "
-            "catalog example.",
-        },
-        {
-            "name": "gis_gap_sensitivity",
-            "prompt": "Using the trajectory worker's bundled demo GPS fixes and its default fences, which "
-            "entities have a fence visit with the default settings but no fence visit when the maximum "
-            "interpolation gap is tightened to 300 seconds? Return one VARCHAR column entity_id, ordered "
-            "by entity_id.",
-        },
-        {
-            "name": "gis_trip_distance_and_fixes",
-            "prompt": "Using the trajectory worker's bundled demo GPS fixes and its default fences, report for "
-            "every demo entity the total metres travelled in reconstructed trip episodes (0.0 when it has "
-            "no trips) alongside how many GPS fixes it recorded. Return entity_id (VARCHAR), trip_m (DOUBLE) "
-            "and fixes (BIGINT), ordered by entity_id.",
-        },
-    ]
-)
-
 CATALOG_TAGS = {
     "vgi.title": "VGI Trajectory Worker",
-    "vgi.subtitle": "Example DuckDB functions to rename and replace: a scalar, a table function and a REST API reader.",
+    "vgi.subtitle": "Reconstruct geofence visits, dwell, trips and gaps from GPS fixes.",
     "vgi.doc_llm": CATALOG_DOC_LLM,
     "vgi.doc_md": CATALOG_DOC_MD,
     "vgi.source_url": SOURCE_URL,
