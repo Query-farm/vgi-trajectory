@@ -31,6 +31,18 @@ SCHEMA_CATEGORIES = [
 ]
 
 
+# Upstream specs, data providers and libraries the catalog docs link to (VGI183).
+CATALOG_REFERENCES_MD = (
+    "\n\n## Sources and references\n\n"
+    "- [Shapely](https://shapely.readthedocs.io/): the geometry engine behind track/geofence "
+    "intersections and the WKB episode paths.\n"
+    "- [pyproj](https://pyproj4.github.io/pyproj/stable/) ([PROJ](https://proj.org/)): coordinate "
+    "transforms from the input CRS into a projected metre CRS for distances and speeds.\n"
+    "- [OGC Simple Feature Access](https://www.ogc.org/standards/sfa/): the WKB geometry encoding used "
+    "for fences and returned paths."
+)
+
+
 def keywords_array(keywords: str) -> str:
     """Turn ``"a, b, c"`` into the JSON array string ``vgi.keywords`` requires."""
     return json.dumps([k.strip() for k in keywords.split(",") if k.strip()])

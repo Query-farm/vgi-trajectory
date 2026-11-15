@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+- Docs link to upstream sources: the catalog `vgi.doc_md` gains a Sources and references section linking Shapely, pyproj/PROJ and the OGC Simple Feature Access standard (WKB) (VGI183).
+
 ## 0.2.0 (unreleased)
 
 - Removed the starter template's demo schema (examples.greet/fetch_items/sequence_table),
