@@ -1,6 +1,6 @@
 [project]
 name = "vgi-trajectory-worker"
-version = "0.2.1"
+version = "0.2.2"
 description = "Python GIS trajectory analysis exposed as VGI SQL functions."
 readme = "README.md"
 license = "0BSD"
@@ -12,7 +12,7 @@ dependencies = [
     "pyproj>=3.7,<4",
     # [http] adds the HTTP transport (`--http`) used by Docker deploys.
     # SDK bumps go through the template (minor bumps can raise the protocol).
-    "vgi-python[http]>=0.52.0,<0.53",
+    "vgi-python[http]>=0.52.2,<0.53",
 ]
 
 [project.scripts]
@@ -21,7 +21,7 @@ vgi-trajectory-worker = "trajectory_worker.worker:main"
 [dependency-groups]
 dev = [
     # `scripts/run_demo.py --engine haybarn` runs the SQL contract in Haybarn.
-    "vgi-python[haybarn]>=0.52.0,<0.53",
+    "vgi-python[haybarn]>=0.52.2,<0.53",
     "pytest>=8.4",
     "mypy>=1.18",
     "ruff>=0.14",

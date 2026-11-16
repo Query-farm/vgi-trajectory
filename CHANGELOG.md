@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2 (2026-11-16)
+
+- Bump vgi-python to 0.52.2.
+- Requires Python 3.14 (CI, Docker image and tooling moved to 3.14).
+
 ## 0.2.1
 
 - Docs link to upstream sources: the catalog `vgi.doc_md` gains a Sources and references section linking Shapely, pyproj/PROJ and the OGC Simple Feature Access standard (WKB) (VGI183).
