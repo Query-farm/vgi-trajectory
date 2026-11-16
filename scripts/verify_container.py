@@ -69,7 +69,7 @@ def main() -> None:
                 with urllib.request.urlopen(endpoint + "/health", timeout=2) as response:
                     if response.status == 200:
                         break
-            except (urllib.error.URLError, TimeoutError, ConnectionError):
+            except urllib.error.URLError, TimeoutError, ConnectionError:
                 pass
             running = command(["docker", "inspect", "--format", "{{.State.Running}}", identifier])
             if running != "true" or time.monotonic() >= deadline:
