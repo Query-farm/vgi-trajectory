@@ -1,9 +1,11 @@
 name: Publish image
 
 # Multi-arch image to ghcr.io, signed with cosign: vX.Y.Z -> :X.Y.Z, :X.Y, :latest;
-# Manual publication only. The shared workflow smoke-tests /health before pushing.
+# Built on release tags (vX.Y.Z -> :X.Y.Z, :X.Y, :latest) or by hand. The shared workflow smoke-tests /health before pushing.
 
 on:
+  push:
+    tags: ['v*.*.*']
   workflow_dispatch:
 
 permissions:
