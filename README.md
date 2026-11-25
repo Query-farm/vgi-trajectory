@@ -1,6 +1,8 @@
 # Visits and trips between GPS fixes
 
 Independent Python VGI worker: query geospatial analysis from SQL and join the resulting rows to your existing tables.
+vgi-trajectory 0.3.0 speaks VGI protocol 3.4, so it needs Haybarn 2.0.1 or newer (Haybarn 2.0.0 loads a 3.3 `vgi` extension that cannot attach it).
+
 
 See the [executed SQL notebook](notebooks/README.md) for a geofence visit with no recorded fixes inside, dwell and trip charts, and an experiment that turns unsupported interpolation into explicit gaps.
 
@@ -78,9 +80,9 @@ WKB is an ordinary SQL BLOB with an explicit companion CRS, not an automatically
 - Scientific fixtures and edge cases: [tests/test_analysis.py](tests/test_analysis.py).
 - Real SQL across stdio, launch and HTTP: [test/sql/gis.test](test/sql/gis.test), run by `make check`.
 - Stock DuckDB contract: the expected results in [vgi-worker.json](vgi-worker.json); `make verify-stock` writes its report to `validation/stock-duckdb.json` (local evidence, not committed).
-- Worker language: Python, pinned locally to 3.14. SDK: `vgi-python 0.51.1` with the starter's `>=0.51.1,<0.52` compatibility bound retained.
+- Worker language: Python, pinned locally to 3.14. SDK: `vgi-python 0.55.1` (`>=0.55.1,<0.56`, VGI protocol 3.4).
 - Starter: [Query-farm/vgi-starter-python](https://github.com/Query-farm/vgi-starter-python), commit `9cca9105474d6e0052b8e343c8ea21f3d1a7503c`, template 1.3.0.
-- Stock engine: DuckDB 2.0.0, signed VGI extension `e75482339d` from `query_farm`. The starter integration runner is separately pinned to `haybarn-unittest 2.0.0rc11`; it is not the stock DuckDB check.
+- Stock engine: DuckDB 2.0.0, signed VGI extension `ebf28ead27` from `query_farm`. The starter integration runner is separately pinned to `haybarn-unittest 2.0.1rc3`; it is not the stock DuckDB check.
 
 `make check` includes formatting, Ruff, strict mypy, docstring checks, unit tests, all three SQL transports, executed metadata examples and stock DuckDB assertions. `make lint-ai` is an optional agent evaluation and is not part of the completed checks. All functions live in the `main` schema. Tests use synthetic known-answer fixtures, not a claim of production accuracy on every dataset.
 
