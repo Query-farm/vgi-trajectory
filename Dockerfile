@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # One image, both transports:
-#   docker run -p 8000:8000 IMAGE         -> HTTP on $PORT (default 8000; GET /health)
+#   docker run -p 8000:8000 IMAGE         -> HTTP on $PORT (default 8000; HEAD /health is anonymous even in hosted mode)
 #   docker run -i IMAGE stdio             -> stdio worker, for DuckDB on the same host
 FROM python:3.14-slim
 
@@ -23,7 +23,7 @@ WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /usr/local/bin/uv
 COPY pyproject.toml uv.lock README.md LICENSE ./
 COPY src ./src
-RUN uv sync --locked --no-dev --no-editable && rm /usr/local/bin/uv
+RUN uv sync --locked --no-dev --extra serve --no-editable && rm /usr/local/bin/uv
 ENV PATH="/app/.venv/bin:$PATH" NUMBA_CACHE_DIR=/home/worker/.cache/numba \
     XDG_STATE_HOME=/var/lib/vgi OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 
@@ -35,5 +35,5 @@ USER worker
 COPY --chmod=0755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
-    CMD python -c "import os,urllib.request;urllib.request.urlopen(f'http://127.0.0.1:{os.environ.get(\"PORT\",\"8000\")}/health',timeout=2)"
+    CMD python -c "import os,urllib.request;urllib.request.urlopen(urllib.request.Request(f'http://127.0.0.1:{os.environ.get(\"PORT\",\"8000\")}/health',method='HEAD'),timeout=2)"
 ENTRYPOINT ["docker-entrypoint.sh"]
